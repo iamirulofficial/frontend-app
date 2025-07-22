@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast"
 import { GovernaiLogo } from '@/components/icons';
-import { Sparkles, BrainCog, Sitemap, Activity, Repeat, HelpCircle, X, SlidersHorizontal, Rocket } from 'lucide-react';
+import { Sparkles, BrainCog, Network, Activity, Repeat, HelpCircle, X, SlidersHorizontal, Rocket } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, LabelList, Cell } from 'recharts';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
@@ -241,7 +241,7 @@ export default function PlanningPage() {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}>
                         <Card className="bg-slate-900/50 border-slate-800">
                             <CardHeader>
-                                <CardTitle className="flex items-center"><Sitemap className="mr-2"/>Digital-Twin Sandbox</CardTitle>
+                                <CardTitle className="flex items-center"><Network className="mr-2"/>Digital-Twin Sandbox</CardTitle>
                                 <CardDescription>Split-screen view: 3D parcel map & financial panel for What-If scenarios.</CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
