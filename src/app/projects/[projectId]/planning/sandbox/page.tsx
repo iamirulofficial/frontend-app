@@ -126,7 +126,7 @@ const TwinPreview = () => {
                     </TooltipProvider>
                 </div>
             </CardHeader>
-            <CardContent className="flex-grow bg-slate-100/50 rounded-b-lg flex items-center justify-center p-4 relative border-t overflow-hidden">
+            <CardContent className="flex-grow rounded-b-lg flex items-center justify-center p-4 relative border-t overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('https://placehold.co/800x600/e2e8f0/64748b?text=Map+View')"}}>
                 <div 
                     className={cn(
                         "grid grid-cols-3 gap-2 w-full h-full transform transition-transform duration-[20000ms] ease-linear",
@@ -139,13 +139,13 @@ const TwinPreview = () => {
                         <Tooltip key={parcel.id}>
                             <TooltipTrigger asChild>
                                 <motion.div
-                                    className="w-full h-full rounded flex items-end"
+                                    className="w-full h-full rounded flex items-end backdrop-blur-sm"
                                     initial={{opacity: 0, scale: 0.5}}
                                     animate={{opacity: 1, scale: 1}}
                                     transition={{delay: Math.random() * 0.5}}
                                 >
                                      <motion.div
-                                        className={cn("w-full rounded-t-md hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 transition-all", getParcelColor(parcel.progress, view))}
+                                        className={cn("w-full rounded-t-md hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 transition-all border-t-2 border-x-2 border-white/50", getParcelColor(parcel.progress, view))}
                                         initial={{ height: '0%' }}
                                         animate={{ height: view === 'extrusion' ? `${parcel.progress * 100}%` : '100%' }}
                                         transition={{type: 'spring', stiffness: 100, damping: 15, delay: 0.5 + Math.random() * 0.5}}
