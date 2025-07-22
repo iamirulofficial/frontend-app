@@ -120,10 +120,17 @@ export const pppRisk = [
     { factor: 'Drone Permit Delays', gov: 20, private: 80 },
 ];
 
+export const failureDrivers = [
+  { reason:'Drone permit delays', impactPct: 42 },
+  { reason:'User-fee shortfall', impactPct: 33 },
+  { reason:'Land litigation spikes', impactPct: 25 }
+];
+
 
 export const planningData = {
     brightSpots,
     wbs,
     scenarios,
-    pppRisk
+    pppRisk,
+    failureDrivers
 };
