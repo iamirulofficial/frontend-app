@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { planningData, wbs, wbsRegenerated } from '@/data/planning';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import { Badge } from '@/components/ui/badge';
-import { Play, RotateCw, Save, SlidersHorizontal, Info, X, Repeat, CheckCircle } from 'lucide-react';
+import { Play, RotateCw, Save, SlidersHorizontal, Info, X, Repeat, CheckCircle, Map, Layers, Pause, Milestone, Check, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -20,6 +20,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+
 
 const IRRDonut = ({ value }: { value: number }) => {
     const data = [
@@ -59,6 +62,121 @@ const failureDrivers = [
   { reason: 'Land-litigation spikes', impactPct: 25 }
 ];
 
+const parcels = [
+  { id:'P-1023', progress: 0.64, nextMilestone:'2025-08-15', qc:92 },
+  { id:'P-1047', progress: 0.22, nextMilestone:'2025-09-01', qc:85 },
+  { id:'P-1048', progress: 1.0, nextMilestone:'2025-07-20', qc:98 },
+  { id:'P-1051', progress: 0.88, nextMilestone:'2025-08-01', qc:94 },
+  { id:'P-1052', progress: 0.45, nextMilestone:'2025-09-10', qc:89 },
+  { id:'P-1055', progress: 0.95, nextMilestone:'2025-07-30', qc:96 },
+  { id:'P-1060', progress: 0.10, nextMilestone:'2025-09-25', qc:81 },
+  { id:'P-1061', progress: 0.75, nextMilestone:'2025-08-12', qc:91 },
+  { id:'P-1063', progress: 1.0, nextMilestone:'2025-07-22', qc:99 },
+];
+
+const TwinPreview = () => {
+    const [isOrbiting, setIsOrbiting] = useState(true);
+    const [view, setView] = useState<'extrusion' | 'heat'>('extrusion');
+
+    const getParcelColor = (progress: number, type: 'extrusion' | 'heat') => {
+        if (type === 'heat') {
+            if (progress < 0.5) return 'bg-rose-500/80';
+            if (progress < 0.8) return 'bg-amber-500/80';
+            return 'bg-emerald-500/80';
+        }
+        return progress === 1 ? 'bg-emerald-300' : 'bg-slate-300';
+    };
+
+    return (
+        <Card className="h-[600px] flex flex-col">
+            <CardHeader className="flex-row justify-between items-center">
+                <CardTitle>Twin Preview</CardTitle>
+                <div className="flex items-center gap-2">
+                     <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setView(v => v === 'extrusion' ? 'heat' : 'extrusion')}>
+                                    <Layers className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Toggle Heatmap View</p>
+                            </TooltipContent>
+                        </Tooltip>
+                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsOrbiting(o => !o)}>
+                                    {isOrbiting ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{isOrbiting ? 'Pause Orbit' : 'Play Orbit'}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="icon" className="h-8 w-8">
+                                    <RotateCw className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Reset View</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            </CardHeader>
+            <CardContent className="flex-grow bg-slate-100/50 rounded-b-lg flex items-center justify-center p-4 relative border-t overflow-hidden">
+                <div 
+                    className={cn(
+                        "grid grid-cols-3 gap-2 w-full h-full transform transition-transform duration-[20000ms] ease-linear",
+                        isOrbiting ? 'animate-orbit' : ''
+                    )}
+                    style={{'--orbit-duration': '40s'} as React.CSSProperties}
+                >
+                    <TooltipProvider>
+                    {parcels.map((parcel) => (
+                        <Tooltip key={parcel.id}>
+                            <TooltipTrigger asChild>
+                                <motion.div
+                                    className="w-full h-full rounded flex items-end"
+                                    initial={{opacity: 0, scale: 0.5}}
+                                    animate={{opacity: 1, scale: 1}}
+                                    transition={{delay: Math.random() * 0.5}}
+                                >
+                                     <motion.div
+                                        className={cn("w-full rounded-t-md hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 transition-all", getParcelColor(parcel.progress, view))}
+                                        initial={{ height: '0%' }}
+                                        animate={{ height: view === 'extrusion' ? `${parcel.progress * 100}%` : '100%' }}
+                                        transition={{type: 'spring', stiffness: 100, damping: 15, delay: 0.5 + Math.random() * 0.5}}
+                                     />
+                                </motion.div>
+                            </TooltipTrigger>
+                             <TooltipContent side="top" className="bg-background text-foreground shadow-xl rounded-lg p-3 border-border">
+                                <div className="text-sm space-y-2">
+                                    <p className="font-bold text-primary">{parcel.id}</p>
+                                    <div className="flex items-center gap-2">
+                                        <Milestone className="h-4 w-4 text-muted-foreground"/>
+                                        <span>Progress: <strong>{Math.round(parcel.progress * 100)}%</strong></span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                         <ShieldCheck className="h-4 w-4 text-muted-foreground"/>
+                                         <span>QC Score: <strong>{parcel.qc}</strong></span>
+                                    </div>
+                                     <div className="flex items-center gap-2">
+                                         <Check className="h-4 w-4 text-muted-foreground"/>
+                                         <span>Next Milestone: <strong>{parcel.nextMilestone}</strong></span>
+                                    </div>
+                                </div>
+                            </TooltipContent>
+                        </Tooltip>
+                    ))}
+                    </TooltipProvider>
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
 
 export default function SandboxPage() {
     const router = useRouter();
@@ -73,7 +191,7 @@ export default function SandboxPage() {
     const [isMcModalOpen, setIsMcModalOpen] = useState(false);
     const [isMcLoading, setIsMcLoading] = useState(false);
     
-    const isRegenerated = searchParams.get('regenerated') === 'true';
+    const isRegenerated = searchParams.get('regenerate') === 'true';
 
     useEffect(() => {
         if(isRegenerated) {
@@ -140,19 +258,7 @@ export default function SandboxPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Twin Preview */}
-        <Card className="h-[600px] flex flex-col">
-           <CardHeader>
-             <CardTitle>Twin Preview</CardTitle>
-           </CardHeader>
-           <CardContent className="flex-grow bg-slate-100 rounded-b-lg flex items-center justify-center relative border-t">
-              <p className="font-bold text-slate-300 text-3xl">[3D Map Placeholder]</p>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <Button variant="outline" size="icon"><Play className="h-4 w-4"/></Button>
-                <Button variant="outline" size="icon"><RotateCw className="h-4 w-4"/></Button>
-              </div>
-           </CardContent>
-        </Card>
+        <TwinPreview />
         
         {/* Controls & Metrics */}
         <div>
@@ -291,3 +397,4 @@ const XCircle = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="m9 9 6 6" />
     </svg>
 )
+
