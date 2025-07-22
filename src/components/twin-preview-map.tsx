@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import Map, { Source, Layer, MapRef, Point } from 'react-map-gl';
+import Map, { Source, Layer, MapRef, Point } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // Dummy GeoJSON: two sample parcels
@@ -70,11 +70,10 @@ export const TwinPreviewMap = () => {
       }}
       style={{ width: '100%', height: '100%' }}
       mapStyle={`https://api.maptiler.com/maps/streets/style.json?key=${mapTilerKey}`}
-      mapLib={import('maplibre-gl')}
       interactiveLayerIds={['parcels-fill']}
       onMouseMove={evt => {
         const feature = evt.features && evt.features[0];
-        if (feature) {
+        if (feature?.properties) {
           setHoverInfo({
             id: feature.properties.id,
             progress: feature.properties.progress,
