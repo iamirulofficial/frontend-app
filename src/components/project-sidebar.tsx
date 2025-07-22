@@ -9,7 +9,8 @@ import {
   FileCheck2,
   BarChart2,
   Archive,
-  Bot
+  Bot,
+  LogOut
 } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import { GovernaiLogo } from './icons';
@@ -19,9 +20,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Button } from './ui/button';
 
 interface ProjectSidebarProps {
   project: Project;
+  onAiCopilotClick: () => void;
 }
 
 const navItems = [
@@ -32,16 +35,16 @@ const navItems = [
   { href: '/monitor', icon: BarChart2, label: 'Monitor' },
 ];
 
-export function ProjectSidebar({ project }: ProjectSidebarProps) {
+export function ProjectSidebar({ project, onAiCopilotClick }: ProjectSidebarProps) {
   const pathname = usePathname();
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside className="w-16 flex flex-col items-center space-y-4 py-4 bg-card border-r">
-        <Link href={`/projects/${project.id}/dashboard`} className="mb-4">
+      <aside className="w-16 flex flex-col items-center space-y-4 py-4 bg-card border-r shadow-md">
+        <Link href={`/`} className="mb-4">
             <GovernaiLogo className="h-8 w-8 text-primary" />
         </Link>
-        <nav className="flex flex-col items-center space-y-2">
+        <nav className="flex flex-col items-center space-y-2 flex-grow">
           {navItems.map((item) => {
             const fullPath = `/projects/${project.id}${item.href}`;
             const isActive = pathname === fullPath;
@@ -53,7 +56,7 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
                     className={`p-3 rounded-lg transition-colors ${
                       isActive
                         ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                        : 'text-muted-foreground hover:bg-accent/10 hover:text-primary'
                     }`}
                   >
                     <item.icon className="h-6 w-6" />
@@ -66,18 +69,28 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
             );
           })}
         </nav>
-        <div className="mt-auto flex flex-col items-center space-y-2">
+        <div className="flex flex-col items-center space-y-2">
             <Tooltip>
                 <TooltipTrigger asChild>
+                    <Button onClick={onAiCopilotClick} variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                        <Bot className="h-6 w-6" />
+                    </Button>
+                </TooltipTrigger>
+                 <TooltipContent side="right">
+                    <p>Project Copilot</p>
+                </TooltipContent>
+            </Tooltip>
+             <Tooltip>
+                <TooltipTrigger asChild>
                     <Link
-                        href="/archive"
-                        className={`p-3 rounded-lg transition-colors text-muted-foreground hover:bg-accent hover:text-accent-foreground`}
+                        href="/"
+                        className={`p-3 rounded-lg transition-colors text-muted-foreground hover:bg-accent/10 hover:text-primary`}
                     >
-                        <Archive className="h-6 w-6" />
+                        <LogOut className="h-6 w-6" />
                     </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                    <p>Archive</p>
+                    <p>Exit Project</p>
                 </TooltipContent>
             </Tooltip>
         </div>

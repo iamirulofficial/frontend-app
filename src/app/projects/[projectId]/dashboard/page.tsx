@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams, notFound, redirect } from 'next/navigation';
+import { use } from 'react';
 import { projects } from '@/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,29 +18,25 @@ export default function DashboardPage() {
     notFound();
   }
   
-  // If project is not Bhu-Setu, we can assume it's set up and redirect to a populated dashboard
-  // For this prototype, we only have a "fresh" view for Bhu-Setu
   if (project.id !== 'bhu-setu-2') {
-     // For other projects, you might have a different view or redirect
-     // For now, we'll just show a placeholder message
-    return <div className="p-8">This project dashboard is not yet configured.</div>
+    return <div className="p-8 bg-gray-50">This project dashboard is not yet configured.</div>
   }
 
   const phaseItems = [
     { href: '/planning', icon: ClipboardList, label: 'Planning' },
-    { href: '/execution', icon: Construction, label: 'Execution' },
-    { href: '/verification', icon: FileCheck2, label: 'Verification' },
-    { href: '/monitor', icon: BarChart2, label: 'Monitor' },
+    { href: '/execution', icon: Construction, label: 'Execution', disabled: true },
+    { href: '/verification', icon: FileCheck2, label: 'Verification', disabled: true },
+    { href: '/monitor', icon: BarChart2, label: 'Monitor', disabled: true },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 bg-gray-50">
       <div>
         <h1 className="text-4xl font-bold font-headline tracking-tight">Welcome to {project.name}</h1>
         <p className="mt-2 text-lg text-muted-foreground">{project.description}</p>
       </div>
 
-      <Card className="bg-primary/5 border-primary/20">
+      <Card className="bg-blue-50 border-blue-200 shadow-lg">
         <CardHeader>
           <CardTitle>Project Setup</CardTitle>
           <CardDescription>Your project is ready. The first step is to define the project plan and run simulations.</CardDescription>
@@ -84,10 +81,10 @@ export default function DashboardPage() {
         <h3 className="text-2xl font-bold font-headline mb-4">Project Lifecycle</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {phaseItems.map((item) => (
-            <Link href={`/projects/${project.id}${item.href}`} key={item.label}>
-              <Card className="h-full transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
+            <Link href={!item.disabled ? `/projects/${project.id}${item.href}` : '#'} key={item.label} className={item.disabled ? 'pointer-events-none' : ''}>
+              <Card className={`h-full transform transition-transform duration-300 ${item.disabled ? 'bg-gray-100 opacity-50' : 'hover:scale-105 hover:shadow-xl hover:border-primary'}`}>
                 <CardContent className="flex flex-col items-center justify-center text-center p-6">
-                  <item.icon className="h-10 w-10 text-primary mb-3" />
+                  <item.icon className={`h-10 w-10 mb-3 ${item.disabled ? 'text-gray-400' : 'text-primary'}`} />
                   <span className="font-semibold">{item.label}</span>
                 </CardContent>
               </Card>

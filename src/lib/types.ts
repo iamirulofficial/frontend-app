@@ -12,36 +12,31 @@ export interface Project {
   imageUrl: string;
 }
 
-export interface ScanResult {
-    district: string;
-    score: number;
-    kpi: {
-        irr: number;
-        delay: number;
-    };
+export interface BrightSpot {
+  district: string;
+  roi: number;
+  delayDays: number;
+  qc: number;
 }
 
-export interface WbsTask {
-    id: string;
-    task: string;
-    days: number;
-    p80Risk: number;
+export interface WbsItem {
+  id: number;
+  task: string;
+  p80Risk: number;
+  duration: number;
 }
 
 export interface Scenario {
-    concessionYears: number;
-    userFeePct: number;
-    annuityCr: number;
-    subsidyPct: number,
-    irr: number;
-    delayRisk: number;
+  id: string;
+  irr: number;
+  delay: number;
+  failedKPIs: number;
 }
 
-
 export interface PlanningData {
-  scanResults: ScanResult[];
-  wbsDraft: WbsTask[];
-  scenarioBase: Scenario;
+  brightSpots: BrightSpot[];
+  wbs: WbsItem[];
+  scenarios: Scenario[];
 }
 
 export interface ExecutionData {

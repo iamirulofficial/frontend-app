@@ -25,22 +25,8 @@ export function GlobalHeader({ onAiCopilotClick }: GlobalHeaderProps) {
             </span>
           </Link>
         </div>
-
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          {isProjectPage && (
-            <Button onClick={onAiCopilotClick} variant="outline" size="sm">
-              <Bot className="mr-2 h-4 w-4" />
-              Project Copilot
-            </Button>
-          )}
-           {isProjectPage && (
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/">
-                <LogOut className="mr-2 h-4 w-4" />
-                Exit Project
-              </Link>
-            </Button>
-          )}
+         <div className="flex flex-1 items-center justify-end space-x-2">
+           {/* The Copilot button is now in the sidebar for project pages */}
         </div>
       </div>
     </header>
