@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { planningData } from '@/data';
+import { planningData, wbs, wbsRegenerated } from '@/data/planning';
+import { useSearchParams } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+
 
 const getRiskColor = (risk: number) => {
-  if (risk > 0.6) return 'bg-red-500';
+  if (risk > 0.6) return 'bg-rose-500';
   if (risk > 0.3) return 'bg-amber-500';
   return 'bg-blue-500';
 };
@@ -50,7 +54,28 @@ const EditableCell = ({ value, onSave }: { value: number, onSave: (newValue: num
 
 
 export default function WBSPage() {
+    const searchParams = useSearchParams();
+    const { toast } = useToast();
+    const isRegenerateFlow = searchParams.get('regenerate') === 'true';
+
     const [riskAllocations, setRiskAllocations] = useState(planningData.pppRisk);
+    const [wbsData, setWbsData] = useState(isRegenerateFlow ? wbsRegenerated : wbs);
+    const [highlightedTasks, setHighlightedTasks] = useState<number[]>([]);
+
+    useEffect(() => {
+        if (isRegenerateFlow) {
+            setWbsData(wbsRegenerated);
+            toast({
+                title: '🔄 WBS Re-drafted',
+                description: 'Tasks driving failure have been re-prioritized and risks adjusted.',
+                variant: 'default',
+            });
+            // Highlight tasks driving failure
+            setHighlightedTasks([1, 4]); // Drone Survey and Notary-DAO
+            const timer = setTimeout(() => setHighlightedTasks([]), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [isRegenerateFlow, toast]);
 
     const handleRiskChange = (index: number, type: 'gov' | 'private', value: number) => {
         const newAllocations = [...riskAllocations];
@@ -67,7 +92,7 @@ export default function WBSPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold font-headline tracking-tight text-primary">
+        <h1 className="text-4xl font-bold font-headline tracking-tight text-slate-800">
           🏗️ AI-Drafted WBS & PPP Risk Allocation
         </h1>
       </div>
@@ -81,13 +106,16 @@ export default function WBSPage() {
               <CardDescription>AI-drafted work breakdown structure. Risk overlays are updated from the PPP sheet.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 pr-6">
-              {planningData.wbs.map((item, i) => (
+              {wbsData.map((item, i) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-4"
+                  className={cn(
+                    "flex items-center gap-4 p-1 rounded-md transition-all",
+                    highlightedTasks.includes(item.id) ? 'border-2 border-rose-500 bg-rose-50' : ''
+                   )}
                 >
                   <span className="w-48 text-sm font-medium truncate">{item.task}</span>
                   <div className="flex-1 bg-gray-200 rounded-full h-8 relative">
@@ -156,8 +184,8 @@ export default function WBSPage() {
             Back: SPARK Scan
           </Link>
         </Button>
-        <Button size="lg" asChild>
-          <Link href="/projects/bhu-setu-2/planning/sandbox">
+        <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700" asChild>
+          <Link href={`/projects/bhu-setu-2/planning/sandbox?regenerated=${isRegenerateFlow}`}>
             Next: Sandbox
           </Link>
         </Button>

@@ -1,4 +1,4 @@
-import type { PlanningData } from '@/lib/types';
+import type { PlanningData, WbsItem } from '@/lib/types';
 
 export const brightSpots = [
   { district: 'Dakshina Kannada', roi: 0.14, delayDays: -12, qc: 92 },
@@ -8,7 +8,7 @@ export const brightSpots = [
   { district: 'Jaipur', roi: 0.10, delayDays: -6, qc: 88 },
 ];
 
-export const wbs = [
+export const wbs: WbsItem[] = [
   { id: 1, task: 'Drone Survey', p80Risk: 0.66, duration: 14 },
   { id: 2, task: 'Legacy OCR', p80Risk: 0.22, duration: 10 },
   { id: 3, task: 'Boundary Validation', p80Risk: 0.31, duration: 18 },
@@ -16,6 +16,16 @@ export const wbs = [
   { id: 5, task: 'API Marketplace Hookup', p80Risk: 0.27, duration: 20 },
   { id: 6, task: 'Revenue Rail Integration', p80Risk: 0.35, duration: 16 },
   { id: 7, task: 'Citizen App UAT', p80Risk: 0.40, duration: 10 },
+];
+
+export const wbsRegenerated: WbsItem[] = [
+  { id: 4, task: 'Notary-DAO Setup', duration: 14, p80Risk: 0.75 }, // was 48->75%
+  { id: 1, task: 'Drone Survey', duration: 16, p80Risk: 0.65 },     // was 66->65%
+  { id: 3, task: 'Boundary Validation', duration: 18, p80Risk: 0.28 },
+  { id: 2, task: 'Legacy OCR', p80Risk: 0.20, duration: 10 },
+  { id: 5, task: 'API Marketplace Hookup', p80Risk: 0.25, duration: 20 },
+  { id: 6, task: 'Revenue Rail Integration', p80Risk: 0.32, duration: 16 },
+  { id: 7, task: 'Citizen App UAT', p80Risk: 0.38, duration: 10 },
 ];
 
 export const scenarios = [
@@ -32,7 +42,7 @@ export const corpusProjects = [
     { id: 'pmgsy', name: 'PMGSY Bridges' },
 ];
 
-export const insights = {
+export const insights: Record<string, { success: {id: string, title: string, detail: string}[], pitfalls: {id: string, title: string, detail: string}[] }> = {
   aadhaar: {
     success: [
       {id:'aad-1', title:'Bi-modal enrolment', detail:'Fingerprint + iris reduced duplicate IDs by 0.3%.'},
@@ -73,9 +83,7 @@ export const insights = {
   }
 };
 
-export const radarAxes = ['Cost', 'Delay', 'Quality', 'Scale', 'Inclusivity'];
-
-export const radarPolygons = [
+const radarDataRaw = [
   { id: 'aadhaar', name: 'Aadhaar', data: [
     { axis: 'Cost', value: 0.4 }, { axis: 'Delay', value: 0.7 }, { axis: 'Quality', value: 0.9 }, { axis: 'Scale', value: 1.0 }, { axis: 'Inclusivity', value: 0.85 }
   ]},
@@ -96,6 +104,14 @@ export const radarPolygons = [
   ]}
 ];
 
+export const radarAxes = ['Cost', 'Delay', 'Quality', 'Scale', 'Inclusivity'];
+
+export const radarPolygons = radarDataRaw.map(d => ({
+    id: d.id,
+    name: d.name,
+    data: d.data.map(item => ({...item}))
+}));
+
 
 export const pppRisk = [
     { factor: 'Land Litigation', gov: 100, private: 0 },
@@ -105,7 +121,7 @@ export const pppRisk = [
 ];
 
 
-export const planningData: PlanningData = {
+export const planningData = {
     brightSpots,
     wbs,
     scenarios,
