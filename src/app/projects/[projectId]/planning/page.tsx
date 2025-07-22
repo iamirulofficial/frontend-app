@@ -136,7 +136,7 @@ export default function PlanningPage() {
         return (
           <motion.div key="A" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center h-full">
             <motion.div animate={{ scale: [0.9, 1.0, 0.9], transition: { duration: 1.5, repeat: Infinity } }}>
-              <GovernaiLogo className="h-24 w-24 text-indigo-400" />
+              <GovernaiLogo className="h-24 w-24 text-primary" />
             </motion.div>
           </motion.div>
         )
@@ -173,7 +173,7 @@ export default function PlanningPage() {
             <div className="flex justify-between items-start">
                 <div>
                     <h1 className="text-3xl md:text-4xl font-bold font-headline tracking-tight flex items-center">
-                        <Sparkles className="mr-3 h-8 w-8 text-indigo-400" /> Planning: AI-SPARK Hub
+                        <Sparkles className="mr-3 h-8 w-8 text-primary" /> Planning: AI-SPARK Hub
                     </h1>
                     <p className="mt-2 text-lg text-muted-foreground">From a clean slate, analytics guide you through Scan → Risk → Twin → Scenario.</p>
                 </div>
@@ -181,7 +181,7 @@ export default function PlanningPage() {
                     <PopoverTrigger asChild>
                         <Button variant="ghost" size="icon"><HelpCircle className="h-6 w-6" /></Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-80 bg-slate-800 border-indigo-500">
+                    <PopoverContent className="w-80 bg-slate-800 border-primary-600">
                         <div className="grid gap-4">
                         <div className="space-y-2">
                             <h4 className="font-medium leading-none text-lime-400">SPARK vs. PDCS</h4>
@@ -222,7 +222,7 @@ export default function PlanningPage() {
                                             <p className="font-bold text-lg">{res.district}</p>
                                             <p className="text-sm text-muted-foreground">Score: {res.score}</p>
                                             <div className="mt-2 text-xs">
-                                                <p>IRR: <span className="font-semibold text-lime-300">{Math.round(res.kpi.irr * 100)}%</span></p>
+                                                <p>IRR: <span className="font-semibold text-lime-300">{(res.kpi.irr * 100).toFixed(0)}%</span></p>
                                                 <p>Delay: <span className="font-semibold text-rose-400">{res.kpi.delay}d</span></p>
                                             </div>
                                              {res.score > 90 && <div className="text-xs font-bold text-lime-400 mt-1">SPARK ⭐</div>}
@@ -291,13 +291,14 @@ export default function PlanningPage() {
                                             contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '0.5rem' }}
                                             labelStyle={{ color: '#e2e8f0' }}
                                         />
-                                        <Bar dataKey="days" stackId="a" fill="#4f46e5" radius={[5, 5, 5, 5]}>
+                                        <Bar dataKey="days" stackId="a" radius={[5, 5, 5, 5]}>
                                             <LabelList dataKey="task" position="insideLeft" offset={10} fill="#f8fafc" className="text-sm font-semibold"/>
                                             <LabelList dataKey="days" position="right" formatter={(v: number) => `${v}d`} fill="#94a3b8" className="text-xs"/>
                                              {stage >= 'E' && wbs.map((entry, index) => {
                                                 const risk = entry.p80Risk;
-                                                const color = risk > 0.3 ? "#f43f5e" : risk > 0.2 ? "#f59e0b" : "#86efac";
-                                                return <Cell key={`cell-${index}`} fill={color} className={risk > 0.2 ? 'animate-pulse' : ''} />;
+                                                const color = risk > 0.4 ? "#f43f5e" : risk > 0.25 ? "#f59e0b" : "#84cc16";
+                                                const animationClass = risk > 0.25 ? (risk > 0.4 ? 'animate-pulse-red' : 'animate-pulse-amber') : '';
+                                                return <Cell key={`cell-${index}`} fill={color} className={animationClass} />;
                                              })}
                                         </Bar>
                                     </BarChart>
@@ -386,3 +387,5 @@ export default function PlanningPage() {
     </div>
   );
 }
+
+    
