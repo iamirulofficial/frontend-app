@@ -1,18 +1,33 @@
-import type { BhuSetuData } from '@/lib/types';
+import type { BhuSetuData, PlanningData } from '@/lib/types';
+
+export const planningData = {
+  scanResults: [
+    { district: 'Dindori', score: 92, kpi: { irr: 0.14, delay: -12 } },
+    { district: 'Bhagalpur', score: 88, kpi: { irr: 0.12, delay: -8 } },
+    { district: 'Jaipur', score: 85, kpi: { irr: 0.11, delay: 5 } },
+    { district: 'Pune', score: 95, kpi: { irr: 0.16, delay: -15 } },
+    { district: 'Varanasi', score: 78, kpi: { irr: 0.09, delay: 20 } },
+    { district: 'Kolkata', score: 81, kpi: { irr: 0.1, delay: 15 } },
+  ],
+  wbsDraft: [
+    { id: 'WBS-1', task: 'Digitise parcels', days: 42, p80Risk: 0.22 },
+    { id: 'WBS-2', task: 'Validate boundaries', days: 30, p80Risk: 0.31 },
+    { id: 'WBS-3', task: 'RPA Revenue Rail', days: 25, p80Risk: 0.15 },
+    { id: 'WBS-4', task: 'Setup Notary-DAO', days: 35, p80Risk: 0.45 },
+    { id: 'WBS-5', task: 'API Marketplace', days: 60, p80Risk: 0.28 },
+  ],
+  scenarioBase: {
+    concessionYears: 15,
+    userFeePct: 40,
+    annuityCr: 20,
+    subsidyPct: 10,
+    irr: 0.12,
+    delayRisk: 18,
+  },
+};
 
 export const bhuSetuData: BhuSetuData = {
-  planning: {
-    scenarios: [
-      { id:'S-Base', irr:0.12, delayRisk:18, capexCr:500 },
-      { id:'S-PPP-Boost', irr:0.16, delayRisk:12, capexCr:540 },
-      { id:'S-HiLitigation', irr:0.08, delayRisk:25, capexCr:495 }
-    ],
-    pppFinancials: {
-      concessionLength: 15,
-      viabilityGapFunding: 20,
-      userFee: 25,
-    }
-  },
+  planning: planningData as unknown as PlanningData, // Cast for compatibility with old type
   execution: {
     districts: [
       { name: 'Bhagalpur Digitisation', progress: 42, capex: 38, revenue: 12, qcScore: 86 },

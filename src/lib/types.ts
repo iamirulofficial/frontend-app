@@ -12,18 +12,36 @@ export interface Project {
   imageUrl: string;
 }
 
-export interface PlanningData {
-  scenarios: {
+export interface ScanResult {
+    district: string;
+    score: number;
+    kpi: {
+        irr: number;
+        delay: number;
+    };
+}
+
+export interface WbsTask {
     id: string;
+    task: string;
+    days: number;
+    p80Risk: number;
+}
+
+export interface Scenario {
+    concessionYears: number;
+    userFeePct: number;
+    annuityCr: number;
+    subsidyPct: number,
     irr: number;
     delayRisk: number;
-    capexCr: number;
-  }[];
-  pppFinancials: {
-    concessionLength: number;
-    viabilityGapFunding: number;
-    userFee: number;
-  };
+}
+
+
+export interface PlanningData {
+  scanResults: ScanResult[];
+  wbsDraft: WbsTask[];
+  scenarioBase: Scenario;
 }
 
 export interface ExecutionData {

@@ -1,4 +1,5 @@
 import type {Config} from 'tailwindcss';
+const { fontFamily } = require("tailwindcss/defaultTheme")
 
 export default {
   darkMode: ['class'],
@@ -17,6 +18,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        sans: ["var(--font-sans)", ...fontFamily.sans],
         body: ['Inter', 'sans-serif'],
         headline: ['"Space Grotesk"', 'sans-serif'],
       },
@@ -61,6 +63,25 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        // Custom colors from playbook
+        indigo: {
+          '400': '#818cf8',
+          '600': '#4f46e5',
+        },
+        slate: {
+          '800': '#1e293b',
+          '900': '#0f172a',
+          '950': '#020617'
+        },
+        lime: {
+          '300': '#bef264',
+          '400': '#a3e635',
+          '600': '#65a30d',
+        },
+        rose: {
+          '400': '#fb7185',
+          '500': '#f43f5e',
+        }
       },
       borderRadius: {
         lg: 'var(--radius)',
