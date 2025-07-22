@@ -33,10 +33,26 @@ export interface Scenario {
   failedKPIs: number;
 }
 
+export interface SparkLibraryItem {
+    name: string;
+    sector: string;
+    logoUrl: string;
+    outcomes: string[];
+    keystones: string[];
+}
+
+export interface PppRiskItem {
+    factor: string;
+    gov: number;
+    private: number;
+}
+
 export interface PlanningData {
   brightSpots: BrightSpot[];
   wbs: WbsItem[];
   scenarios: Scenario[];
+  sparkLibrary: SparkLibraryItem[];
+  pppRisk: PppRiskItem[];
 }
 
 export interface ExecutionData {
