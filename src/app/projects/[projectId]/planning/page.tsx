@@ -1,3 +1,5 @@
+'use client';
+
 import { notFound } from 'next/navigation';
 import { projects, bhuSetuData } from '@/data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +10,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, LabelList, ZAxis } from "recharts"
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, LabelList, ZAxis, Tooltip } from "recharts"
 
 export default function PlanningPage({ params }: { params: { projectId: string } }) {
   const project = projects.find((p) => p.id === params.projectId);
