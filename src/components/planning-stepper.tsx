@@ -6,7 +6,6 @@ import { Check } from "lucide-react";
 
 const planningSteps = [
     { name: 'Charter', href: '/charter' },
-    { name: 'Library', href: '/library' },
     { name: 'SPARK Scan', href: '/scan' },
     { name: 'WBS & Risk', href: '/wbs' },
     { name: 'Sandbox', href: '/sandbox' },
@@ -37,7 +36,6 @@ export function PlanningStepper() {
                          isCurrent 
                             ? 'border-primary text-primary' 
                             : 'border-transparent text-muted-foreground hover:border-gray-300 hover:text-gray-700',
-                        !isCurrent && !isCompleted ? 'pointer-events-none opacity-50' : ''
                         )}
                         aria-current={isCurrent ? 'page' : undefined}
                     >

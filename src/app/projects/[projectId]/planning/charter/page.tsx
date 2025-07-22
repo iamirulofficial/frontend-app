@@ -5,10 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { KpiCard } from '@/components/kpi-card';
 
-const AnimatedCounter = ({ to, duration = 1.5 }: { to: number; duration?: number }) => {
-  const [count, setCount] = useState(0);
+const AnimatedCounter = ({ to, duration = 1.5, from = 0 }: { to: number; duration?: number; from?: number; }) => {
+  const [count, setCount] = useState(from);
   
   // This is a simplified animation for the counter for this prototype
   useState(() => {
@@ -17,7 +16,7 @@ const AnimatedCounter = ({ to, duration = 1.5 }: { to: number; duration?: number
     const animate = () => {
       frame++;
       const progress = frame / totalFrames;
-      const current = to * progress;
+      const current = from + (to - from) * progress;
       setCount(current);
       if (frame < totalFrames) {
         requestAnimationFrame(animate);
@@ -28,7 +27,7 @@ const AnimatedCounter = ({ to, duration = 1.5 }: { to: number; duration?: number
     requestAnimationFrame(animate);
   });
 
-  return <span>{Math.round(count).toLocaleString()}</span>;
+  return <span>{count.toLocaleString('en-IN', { maximumFractionDigits: 1 })}</span>;
 };
 
 
@@ -36,9 +35,8 @@ export default function CharterPage() {
   const [isCharterExpanded, setIsCharterExpanded] = useState(false);
 
   const kpis = [
-    { title: 'Parcels to Digitize', value: 287000000, suffix: ' crore' },
+    { title: 'Parcels to Digitize', value: 28.7, suffix: ' crore' },
     { title: 'Target IRR', value: 12, suffix: '%' },
-    { title: 'Avg. Title Transfer', value: 7, suffix: ' days', description: 'From 45 days' },
   ];
 
   return (
@@ -68,13 +66,26 @@ export default function CharterPage() {
                 <div className="p-6 bg-card rounded-xl shadow-lg border">
                     <p className="text-lg font-semibold text-muted-foreground">{kpi.title}</p>
                     <p className="text-5xl font-bold text-primary mt-2">
-                        {kpi.title.includes('Parcels') ? '28.7' : <AnimatedCounter to={kpi.value} />}
+                        <AnimatedCounter to={kpi.value} />
                         {kpi.suffix}
                     </p>
-                     {kpi.description && <p className="text-sm text-muted-foreground mt-2">{kpi.description}</p>}
                 </div>
             </motion.div>
           ))}
+           <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5, type: 'spring' }}
+            >
+               <div className="p-6 bg-card rounded-xl shadow-lg border">
+                    <p className="text-lg font-semibold text-muted-foreground">Avg. Title Transfer</p>
+                    <p className="text-5xl font-bold text-primary mt-2">
+                        <AnimatedCounter to={45} from={45} duration={0.1} />
+                        <span className="mx-2">▶</span>
+                        <AnimatedCounter to={7} duration={2} /> days
+                    </p>
+                </div>
+            </motion.div>
         </div>
         
         <div className="bg-card p-8 rounded-xl shadow-lg border">
@@ -117,8 +128,8 @@ export default function CharterPage() {
 
         <div className="flex justify-end mt-12">
             <Button size="lg" asChild>
-                <Link href="/projects/bhu-setu-2/planning/library">
-                    Next: SPARK Library
+                <Link href="/projects/bhu-setu-2/planning/scan">
+                    Next: SPARK Scan
                 </Link>
             </Button>
         </div>
