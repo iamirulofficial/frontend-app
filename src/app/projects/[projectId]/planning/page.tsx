@@ -222,7 +222,7 @@ export default function PlanningPage() {
                                             <p className="font-bold text-lg">{res.district}</p>
                                             <p className="text-sm text-muted-foreground">Score: {res.score}</p>
                                             <div className="mt-2 text-xs">
-                                                <p>IRR: <span className="font-semibold text-lime-300">{res.kpi.irr * 100}%</span></p>
+                                                <p>IRR: <span className="font-semibold text-lime-300">{Math.round(res.kpi.irr * 100)}%</span></p>
                                                 <p>Delay: <span className="font-semibold text-rose-400">{res.kpi.delay}d</span></p>
                                             </div>
                                              {res.score > 90 && <div className="text-xs font-bold text-lime-400 mt-1">SPARK ⭐</div>}
