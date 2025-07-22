@@ -69,6 +69,7 @@ export default function PlanningPage() {
   const projectId = params.projectId as string;
   const project = projects.find((p) => p.id === projectId);
   
+  const [simulationStarted, setSimulationStarted] = useState(false);
   const [stage, setStage] = useState<Stage>('A');
   const [showScenarioTuner, setShowScenarioTuner] = useState(false);
   const [scenario, setScenario] = useState(planningData.scenarioBase);
@@ -78,6 +79,8 @@ export default function PlanningPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!simulationStarted) return;
+
     if (stage !== 'G' && stage !== 'H' && stage !== 'I') {
         const timer = setTimeout(() => {
             setStage(prev => String.fromCharCode(prev.charCodeAt(0) + 1) as Stage);
@@ -87,9 +90,10 @@ export default function PlanningPage() {
      if (stage === 'G') {
         setTimeout(() => setShowScenarioTuner(true), 500);
     }
-  }, [stage]);
+  }, [stage, simulationStarted]);
 
   useEffect(() => {
+    if (!simulationStarted) return;
     const { irr, delayRisk } = scenario;
     const failedKPIs = (irr < 0.1 ? 1: 0) + (delayRisk > 25 ? 1 : 0)
     if (failedKPIs > 0 && stage === 'G') { // Simplified logic
@@ -102,7 +106,7 @@ export default function PlanningPage() {
         setScenarioFailed(false);
         modalControls.start({ borderColor: '#475569' });
     }
-  }, [scenario, stage, modalControls])
+  }, [scenario, stage, modalControls, simulationStarted])
 
 
   if (!project || project.id !== 'bhu-setu-2') {
@@ -130,7 +134,7 @@ export default function PlanningPage() {
     })
   }
 
-  const renderContent = () => {
+  const renderSimulation = () => {
     switch(stage) {
       case 'A':
         return (
@@ -317,10 +321,59 @@ export default function PlanningPage() {
       default: return null;
     }
   }
+  
+  const renderInitialState = () => (
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="flex justify-between items-start">
+            <div>
+                <h1 className="text-3xl md:text-4xl font-bold font-headline tracking-tight flex items-center">
+                    <Sparkles className="mr-3 h-8 w-8 text-primary" /> Planning: AI-SPARK Hub
+                </h1>
+                <p className="mt-2 text-lg text-muted-foreground">AI-assisted planning to de-risk your project from the start.</p>
+            </div>
+             <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon"><HelpCircle className="h-6 w-6" /></Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 bg-slate-800 border-primary-600">
+                    <div className="grid gap-4">
+                    <div className="space-y-2">
+                        <h4 className="font-medium leading-none text-lime-400">SPARK vs. PDCS</h4>
+                        <p className="text-sm text-muted-foreground">
+                        A quick glossary on our analytics methods.
+                        </p>
+                    </div>
+                    <div className="grid gap-2 text-xs">
+                        <div className="font-bold">SPARK</div>
+                        <p className="text-muted-foreground">Focuses on superior project/team outcome & process metrics to drive tangible KPI uplift.</p>
+                         <div className="font-bold mt-2">PDCS</div>
+                        <p className="text-muted-foreground">Focuses on intentional, non-normative communication to shape softer change-management.</p>
+                    </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+        
+        <Card className="bg-slate-900/50 border-primary/20 shadow-lg">
+            <CardHeader>
+                <CardTitle>Ready to Plan?</CardTitle>
+                <CardDescription>The AI will analyze historical data, generate a work-plan, and run financial simulations to find the optimal path forward.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center text-center">
+                <p className="text-muted-foreground mb-6">This process is entirely simulated and uses pre-configured data.</p>
+                <Button size="lg" className="bg-lime-600 hover:bg-lime-700 text-white font-bold" onClick={() => setSimulationStarted(true)}>
+                    <Rocket className="mr-2" /> Start Planning Simulation
+                </Button>
+            </CardContent>
+        </Card>
+
+    </div>
+  );
+
 
   return (
-    <div className="h-[calc(100vh-10rem)] bg-slate-950 text-slate-100 overflow-hidden">
-        {renderContent()}
+    <div className="h-[calc(100vh-10rem)] bg-slate-950 text-slate-100 overflow-auto">
+        {simulationStarted ? renderSimulation() : renderInitialState()}
 
         <AnimatePresence>
         {showScenarioTuner && (
@@ -387,5 +440,3 @@ export default function PlanningPage() {
     </div>
   );
 }
-
-    
