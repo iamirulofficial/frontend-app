@@ -9,7 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { planningData, wbs, wbsRegenerated } from '@/data/planning';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import { Badge } from '@/components/ui/badge';
-import { Play, RotateCw, Save, SlidersHorizontal, Info, X, Repeat, CheckCircle, Map, Layers, Pause, Milestone, Check, ShieldCheck } from 'lucide-react';
+import { Play, RotateCw, Save, SlidersHorizontal, Info, X, Repeat, CheckCircle, Map, Layers, Pause, Milestone, ShieldCheck, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -126,11 +126,10 @@ const TwinPreview = () => {
                     </TooltipProvider>
                 </div>
             </CardHeader>
-            <CardContent className="flex-grow rounded-b-lg flex items-center justify-center p-4 relative border-t overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('https://placehold.co/800x600/e2e8f0/64748b?text=Map+View')"}}>
+            <CardContent className="flex-grow rounded-b-lg flex items-center justify-center p-4 relative border-t overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('https://placehold.co/800x600/e2e8f0/e2e8f0.png')"}} data-ai-hint="satellite map">
                 <div 
                     className={cn(
                         "grid grid-cols-3 gap-2 w-full h-full transform transition-transform duration-[20000ms] ease-linear",
-                        isOrbiting ? 'animate-orbit' : ''
                     )}
                     style={{'--orbit-duration': '40s'} as React.CSSProperties}
                 >
@@ -257,7 +256,7 @@ export default function SandboxPage() {
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <TwinPreview />
         
         {/* Controls & Metrics */}
@@ -398,3 +397,4 @@ const XCircle = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 )
 
+    
