@@ -251,9 +251,9 @@ export default function PlanningPage() {
                                 <CardDescription>Split-screen view: 3D parcel map & financial panel for What-If scenarios.</CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                                 <motion.div animate={stage === 'F' ? { rotate: [0, 360] } : {}} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }} className="h-64 flex items-center justify-center bg-slate-900/50 rounded-lg p-4 border border-slate-700">
+                                 <div className="h-64 flex items-center justify-center bg-slate-900/50 rounded-lg p-4 border border-slate-700">
                                     <p className="text-muted-foreground text-center">[3D GeoJSON Parcel Map]</p>
-                                 </motion.div>
+                                 </div>
                                  <div className="flex flex-col items-center justify-center">
                                     <div className="text-center">
                                         <p className="text-muted-foreground">Project IRR</p>
