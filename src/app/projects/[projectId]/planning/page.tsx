@@ -81,14 +81,11 @@ export default function PlanningPage() {
   useEffect(() => {
     if (!simulationStarted) return;
 
-    if (stage !== 'G' && stage !== 'H' && stage !== 'I') {
+    if (stage !== 'F' && stage !== 'G' && stage !== 'H' && stage !== 'I') {
         const timer = setTimeout(() => {
             setStage(prev => String.fromCharCode(prev.charCodeAt(0) + 1) as Stage);
         }, stageDurations[stage]);
         return () => clearTimeout(timer);
-    }
-     if (stage === 'G') {
-        setTimeout(() => setShowScenarioTuner(true), 500);
     }
   }, [stage, simulationStarted]);
 
@@ -133,6 +130,11 @@ export default function PlanningPage() {
         action: <Rocket className="h-5 w-5 text-lime-400" />
     })
   }
+
+  const handleTuneScenarios = () => {
+    setStage('G');
+    setShowScenarioTuner(true);
+  };
 
   const renderSimulation = () => {
     switch(stage) {
@@ -249,7 +251,7 @@ export default function PlanningPage() {
                                 <CardDescription>Split-screen view: 3D parcel map & financial panel for What-If scenarios.</CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                                 <motion.div animate={{ rotate: [0, 360] }} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }} className="h-64 flex items-center justify-center bg-slate-900/50 rounded-lg p-4 border border-slate-700">
+                                 <motion.div animate={stage === 'F' ? { rotate: [0, 360] } : {}} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }} className="h-64 flex items-center justify-center bg-slate-900/50 rounded-lg p-4 border border-slate-700">
                                     <p className="text-muted-foreground text-center">[3D GeoJSON Parcel Map]</p>
                                  </motion.div>
                                  <div className="flex flex-col items-center justify-center">
@@ -257,7 +259,7 @@ export default function PlanningPage() {
                                         <p className="text-muted-foreground">Project IRR</p>
                                         <p className="text-5xl font-extrabold text-lime-400">{(scenario.irr * 100).toFixed(1)}%</p>
                                     </div>
-                                    <Button className="mt-6" onClick={() => setStage('G')} disabled={stage !== 'F'}>
+                                    <Button className="mt-6" onClick={handleTuneScenarios} disabled={stage !== 'F'}>
                                         <SlidersHorizontal className="mr-2" /> Tune Scenarios
                                     </Button>
                                  </div>
@@ -281,7 +283,7 @@ export default function PlanningPage() {
                             <CardTitle className="flex items-center"><Activity className="mr-2"/>AI WBS & Risk Analysis</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {stage === 'D' && <Typewriter text="Drafting Work-Plan..." />}
+                            {stage === 'D' && <Typewriter text="Drafting Work-Plan..." onComplete={() => setStage('E')} />}
                             {(stage >= 'E') && (
                             <>
                             <p className="font-mono text-lime-400 mb-4">Work-Plan Drafted. Analyzing P80 Risk...</p>
@@ -312,6 +314,12 @@ export default function PlanningPage() {
                             )}
                         </CardContent>
                     </Card>
+                    {stage === 'I' && (
+                        <motion.div initial={{opacity: 0}} animate={{opacity: 1}} className="text-center p-4 bg-slate-900/50 rounded-lg">
+                           <p className="text-lime-400 font-bold">Scenario Locked!</p>
+                           <p className="text-muted-foreground">Project plan has been finalized and pushed to the Execution phase.</p>
+                        </motion.div>
+                    )}
                 </motion.div>
                 )}
                 </AnimatePresence>
