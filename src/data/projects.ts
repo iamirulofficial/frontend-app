@@ -6,7 +6,7 @@ export const projects: Project[] = [
     name: 'Bhu-Setu 2.0',
     sector: 'Land & Urban',
     status: 'active',
-    kpi: { roi: 0.12, delayDays: -8, quality: 88 },
+    kpi: { roi: 0, delayDays: 0, quality: 0 },
     description: 'A national-level project for digitizing land records and streamlining property transactions.',
     imageUrl: 'https://placehold.co/600x400.png',
   },

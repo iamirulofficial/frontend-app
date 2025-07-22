@@ -1,31 +1,31 @@
 'use client';
 
-import { notFound, useParams } from 'next/navigation';
-import { projects, bhuSetuData } from '@/data';
-import { KpiCard } from '@/components/kpi-card';
+import { useParams, notFound, redirect } from 'next/navigation';
+import { projects } from '@/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { TrendingUp, AlertTriangle, BadgeCheck, MapPin, LayoutDashboard, ClipboardList, Construction, CheckCircle, BarChart2, FileCheck2 } from 'lucide-react';
-import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ArrowRight, LayoutDashboard, ClipboardList, Construction, FileCheck2, BarChart2, Rocket } from 'lucide-react';
+import { KpiCard } from '@/components/kpi-card';
 
 export default function DashboardPage() {
   const params = useParams();
   const projectId = params.projectId as string;
   const project = projects.find((p) => p.id === projectId);
-  
+
   if (!project) {
     notFound();
   }
+  
+  // If project is not Bhu-Setu, we can assume it's set up and redirect to a populated dashboard
+  // For this prototype, we only have a "fresh" view for Bhu-Setu
+  if (project.id !== 'bhu-setu-2') {
+     // For other projects, you might have a different view or redirect
+     // For now, we'll just show a placeholder message
+    return <div className="p-8">This project dashboard is not yet configured.</div>
+  }
 
   const phaseItems = [
-    { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/planning', icon: ClipboardList, label: 'Planning' },
     { href: '/execution', icon: Construction, label: 'Execution' },
     { href: '/verification', icon: FileCheck2, label: 'Verification' },
@@ -35,82 +35,65 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold font-headline tracking-tight">{project.name} Dashboard</h1>
+        <h1 className="text-4xl font-bold font-headline tracking-tight">Welcome to {project.name}</h1>
         <p className="mt-2 text-lg text-muted-foreground">{project.description}</p>
       </div>
+
+      <Card className="bg-primary/5 border-primary/20">
+        <CardHeader>
+          <CardTitle>Project Setup</CardTitle>
+          <CardDescription>Your project is ready. The first step is to define the project plan and run simulations.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-background rounded-lg border">
+            <div>
+              <h3 className="font-semibold text-lg">Start with the AI-SPARK Hub</h3>
+              <p className="text-muted-foreground">Go to the Planning phase to analyze scenarios and structure your project.</p>
+            </div>
+            <Button asChild>
+              <Link href={`/projects/${projectId}/planning`}>
+                Go to Planning <Rocket className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <KpiCard
           title="Return on Investment (ROI)"
-          value={project.kpi.roi * 100}
-          icon={<TrendingUp />}
+          value={project.kpi.roi}
           suffix="%"
-          colorClass="text-green-500"
-          description="Projected financial return"
+          description="Awaiting planning data"
         />
         <KpiCard
           title="Schedule Variance"
           value={project.kpi.delayDays}
-          icon={<AlertTriangle />}
           suffix=" days"
-          colorClass={project.kpi.delayDays > 0 ? 'text-destructive' : 'text-green-500'}
-          description={project.kpi.delayDays > 0 ? 'Behind schedule' : 'Ahead of schedule'}
+          description="Awaiting execution data"
         />
         <KpiCard
           title="Overall Quality Score"
           value={project.kpi.quality}
-          icon={<BadgeCheck />}
           suffix=" / 100"
-          colorClass="text-primary"
-          description="Composite quality metric"
+          description="Awaiting verification data"
         />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-5">
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center"><MapPin className="mr-2 h-5 w-5" /> Project Footprint</CardTitle>
-            <CardDescription>Live operational view of project districts.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="aspect-video relative rounded-lg overflow-hidden border">
-              <Image src="https://placehold.co/800x450.png" alt="Project Map" fill className="object-cover" data-ai-hint="india map districts" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-              <div className="absolute bottom-4 left-4 text-white">
-                <h3 className="font-bold text-lg">Bhu-Setu 2.0 Live View</h3>
-                <p className="text-sm">4 active districts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Project Lifecycle</CardTitle>
-            <CardDescription>Navigate through different phases of the project.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center justify-center pt-8">
-            <Carousel opts={{ align: "start", loop: true }} className="w-full max-w-xs">
-              <CarouselContent>
-                {phaseItems.map((item) => (
-                  <CarouselItem key={item.href} className="md:basis-1/2 lg:basis-1/1">
-                    <Link href={`/projects/${project.id}${item.href}`}>
-                      <div className="p-1">
-                        <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
-                          <CardContent className="flex flex-col items-center justify-center aspect-square p-6">
-                            <item.icon className="h-12 w-12 text-primary mb-4" />
-                            <span className="text-lg font-semibold font-headline">{item.label}</span>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </CardContent>
-        </Card>
+      <div>
+        <h3 className="text-2xl font-bold font-headline mb-4">Project Lifecycle</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {phaseItems.map((item) => (
+            <Link href={`/projects/${project.id}${item.href}`} key={item.label}>
+              <Card className="h-full transform transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-primary">
+                <CardContent className="flex flex-col items-center justify-center text-center p-6">
+                  <item.icon className="h-10 w-10 text-primary mb-3" />
+                  <span className="font-semibold">{item.label}</span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
