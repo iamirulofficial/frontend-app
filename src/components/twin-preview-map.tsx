@@ -1,0 +1,135 @@
+'use client';
+import React, { useState } from 'react';
+import Map, { Source, Layer, MapRef, Point } from 'react-map-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+
+// Dummy GeoJSON: two sample parcels
+const DUMMY_PARCELS = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: { progress: 0.64, id: 'P-1023' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [77.60,12.92],
+            [77.61,12.92],
+            [77.61,12.93],
+            [77.60,12.93],
+            [77.60,12.92]
+          ]
+        ]
+      }
+    },
+    {
+      type: 'Feature',
+      properties: { progress: 0.22, id: 'P-1047' },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [77.58,12.90],
+            [77.59,12.90],
+            [77.59,12.91],
+            [77.58,12.91],
+            [77.58,12.90]
+          ]
+        ]
+      }
+    }
+  ]
+};
+
+type HoverInfo = {
+    id: string;
+    progress: number;
+    x: number;
+    y: number;
+}
+
+export const TwinPreviewMap = () => {
+  const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+
+  const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY || "key";
+  if (mapTilerKey === "key") {
+      console.warn("MapTiler key is not set. Please set NEXT_PUBLIC_MAPTILER_KEY in your environment.");
+  }
+
+  return (
+    <Map
+      initialViewState={{
+        longitude: 77.605,
+        latitude: 12.915,
+        zoom: 12,
+        pitch: 45,
+        bearing: -17
+      }}
+      style={{ width: '100%', height: '100%' }}
+      mapStyle={`https://api.maptiler.com/maps/streets/style.json?key=${mapTilerKey}`}
+      mapLib={import('maplibre-gl')}
+      interactiveLayerIds={['parcels-fill']}
+      onMouseMove={evt => {
+        const feature = evt.features && evt.features[0];
+        if (feature) {
+          setHoverInfo({
+            id: feature.properties.id,
+            progress: feature.properties.progress,
+            x: evt.point.x,
+            y: evt.point.y
+          });
+        } else {
+          setHoverInfo(null);
+        }
+      }}
+    >
+      {/* Parcel extrusion & fill */}
+      <Source id="parcels" type="geojson" data={DUMMY_PARCELS as any}>
+        {/* Fill layer */}
+        <Layer
+          id="parcels-fill"
+          type="fill-extrusion"
+          paint={{
+            'fill-extrusion-color': [
+              'interpolate',
+              ['linear'],
+              ['get', 'progress'],
+              0, '#E5E7EB',     // slate-200
+              0.5, '#FBBF24',   // amber-400
+              1, '#34D399'      // emerald-400
+            ],
+            'fill-extrusion-height': [
+              'interpolate',
+              ['linear'],
+              ['get', 'progress'],
+              0, 0,
+              1, 30
+            ],
+            'fill-extrusion-opacity': 0.8
+          }}
+        />
+        {/* Outline layer */}
+        <Layer
+          id="parcels-line"
+          type="line"
+          paint={{
+            'line-color': '#FFFFFF',
+            'line-width': 1
+          }}
+        />
+      </Source>
+
+      {/* Hover tooltip */}
+      {hoverInfo && (
+        <div
+          className="absolute bg-white px-2 py-1 text-sm rounded shadow"
+          style={{ left: hoverInfo.x + 10, top: hoverInfo.y + 10, pointerEvents: 'none' }}
+        >
+          <div><strong>Parcel:</strong> {hoverInfo.id}</div>
+          <div><strong>Progress:</strong> {(hoverInfo.progress * 100).toFixed(0)} %</div>
+        </div>
+      )}
+    </Map>
+  );
+};

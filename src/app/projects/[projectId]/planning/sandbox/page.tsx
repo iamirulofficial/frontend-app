@@ -1,15 +1,13 @@
 'use client';
 
-import { useState, useReducer, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { planningData, wbs, wbsRegenerated } from '@/data/planning';
-import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
-import { Badge } from '@/components/ui/badge';
-import { Play, RotateCw, Save, SlidersHorizontal, Info, X, Repeat, CheckCircle, Map, Layers, Pause, Milestone, ShieldCheck, Check } from 'lucide-react';
+import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis, PieChart, Pie, Cell } from 'recharts';
+import { Info, Repeat, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -20,8 +18,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+import { failureDrivers, wbs, wbsRegenerated } from '@/data/planning';
+import { TwinPreviewMap } from '@/components/twin-preview-map';
 
 
 const IRRDonut = ({ value }: { value: number }) => {
@@ -52,130 +50,9 @@ const IRRDonut = ({ value }: { value: number }) => {
 }
 
 const failureDonutData = [
-  { name: 'Pass', value: 35, color: '#10B981' },
-  { name: 'Fail', value: 65, color: '#EF4444' },
+  { name: 'Pass', value: 35, color: 'hsl(var(--accent))' },
+  { name: 'Fail', value: 65, color: 'hsl(var(--destructive))' },
 ]
-
-const failureDrivers = [
-  { reason: 'High drone-permit delays', impactPct: 42 },
-  { reason: 'Insufficient user-fee revenue', impactPct: 33 },
-  { reason: 'Land-litigation spikes', impactPct: 25 }
-];
-
-const parcels = [
-  { id:'P-1023', progress: 0.64, nextMilestone:'2025-08-15', qc:92 },
-  { id:'P-1047', progress: 0.22, nextMilestone:'2025-09-01', qc:85 },
-  { id:'P-1048', progress: 1.0, nextMilestone:'2025-07-20', qc:98 },
-  { id:'P-1051', progress: 0.88, nextMilestone:'2025-08-01', qc:94 },
-  { id:'P-1052', progress: 0.45, nextMilestone:'2025-09-10', qc:89 },
-  { id:'P-1055', progress: 0.95, nextMilestone:'2025-07-30', qc:96 },
-  { id:'P-1060', progress: 0.10, nextMilestone:'2025-09-25', qc:81 },
-  { id:'P-1061', progress: 0.75, nextMilestone:'2025-08-12', qc:91 },
-  { id:'P-1063', progress: 1.0, nextMilestone:'2025-07-22', qc:99 },
-];
-
-const TwinPreview = () => {
-    const [isOrbiting, setIsOrbiting] = useState(true);
-    const [view, setView] = useState<'extrusion' | 'heat'>('extrusion');
-
-    const getParcelColor = (progress: number, type: 'extrusion' | 'heat') => {
-        if (type === 'heat') {
-            if (progress < 0.5) return 'bg-rose-500/80';
-            if (progress < 0.8) return 'bg-amber-500/80';
-            return 'bg-emerald-500/80';
-        }
-        return progress === 1 ? 'bg-emerald-300' : 'bg-slate-300';
-    };
-
-    return (
-        <Card className="h-[600px] flex flex-col">
-            <CardHeader className="flex-row justify-between items-center">
-                <CardTitle>Twin Preview</CardTitle>
-                <div className="flex items-center gap-2">
-                     <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setView(v => v === 'extrusion' ? 'heat' : 'extrusion')}>
-                                    <Layers className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Toggle Heatmap View</p>
-                            </TooltipContent>
-                        </Tooltip>
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsOrbiting(o => !o)}>
-                                    {isOrbiting ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{isOrbiting ? 'Pause Orbit' : 'Play Orbit'}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="outline" size="icon" className="h-8 w-8">
-                                    <RotateCw className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Reset View</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </div>
-            </CardHeader>
-            <CardContent className="flex-grow rounded-b-lg flex items-center justify-center p-4 relative border-t overflow-hidden bg-cover bg-center" style={{backgroundImage: "url('https://placehold.co/800x600/e2e8f0/e2e8f0.png')"}} data-ai-hint="satellite map">
-                <div 
-                    className={cn(
-                        "grid grid-cols-3 gap-2 w-full h-full transform transition-transform duration-[20000ms] ease-linear",
-                    )}
-                    style={{'--orbit-duration': '40s'} as React.CSSProperties}
-                >
-                    <TooltipProvider>
-                    {parcels.map((parcel) => (
-                        <Tooltip key={parcel.id}>
-                            <TooltipTrigger asChild>
-                                <motion.div
-                                    className="w-full h-full rounded flex items-end backdrop-blur-sm"
-                                    initial={{opacity: 0, scale: 0.5}}
-                                    animate={{opacity: 1, scale: 1}}
-                                    transition={{delay: Math.random() * 0.5}}
-                                >
-                                     <motion.div
-                                        className={cn("w-full rounded-t-md hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 transition-all border-t-2 border-x-2 border-white/50", getParcelColor(parcel.progress, view))}
-                                        initial={{ height: '0%' }}
-                                        animate={{ height: view === 'extrusion' ? `${parcel.progress * 100}%` : '100%' }}
-                                        transition={{type: 'spring', stiffness: 100, damping: 15, delay: 0.5 + Math.random() * 0.5}}
-                                     />
-                                </motion.div>
-                            </TooltipTrigger>
-                             <TooltipContent side="top" className="bg-background text-foreground shadow-xl rounded-lg p-3 border-border">
-                                <div className="text-sm space-y-2">
-                                    <p className="font-bold text-primary">{parcel.id}</p>
-                                    <div className="flex items-center gap-2">
-                                        <Milestone className="h-4 w-4 text-muted-foreground"/>
-                                        <span>Progress: <strong>{Math.round(parcel.progress * 100)}%</strong></span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                         <ShieldCheck className="h-4 w-4 text-muted-foreground"/>
-                                         <span>QC Score: <strong>{parcel.qc}</strong></span>
-                                    </div>
-                                     <div className="flex items-center gap-2">
-                                         <Check className="h-4 w-4 text-muted-foreground"/>
-                                         <span>Next Milestone: <strong>{parcel.nextMilestone}</strong></span>
-                                    </div>
-                                </div>
-                            </TooltipContent>
-                        </Tooltip>
-                    ))}
-                    </TooltipProvider>
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
 
 export default function SandboxPage() {
     const router = useRouter();
@@ -229,6 +106,7 @@ export default function SandboxPage() {
     }
     
     const handleRegenerate = () => {
+        // This simulates regenerating the WBS and looping back
         router.push('/projects/bhu-setu-2/planning/wbs?regenerate=true');
     }
 
@@ -257,7 +135,9 @@ export default function SandboxPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <TwinPreview />
+         <div className="w-full h-full min-h-[600px] rounded-lg shadow-md overflow-hidden">
+            <TwinPreviewMap />
+         </div>
         
         {/* Controls & Metrics */}
         <div>
@@ -292,7 +172,7 @@ export default function SandboxPage() {
                 <CardContent className="flex justify-around items-center">
                    <IRRDonut value={currentIRR} />
                    <div className="text-center">
-                        <p className={`text-5xl font-bold ${calculateTimeline() > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                        <p className={`text-5xl font-bold ${calculateTimeline() >= 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
                            {calculateTimeline() >= 0 ? '+' : ''}{calculateTimeline()} weeks
                         </p>
                         <p className="text-sm text-muted-foreground">Timeline Shift</p>
@@ -389,12 +269,10 @@ export default function SandboxPage() {
 }
 
 // Dummy Icon for Dialog Title
-const XCircle = (props: React.SVGProps<SVGSVGElement>) => (
+const XCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <circle cx="12" cy="12" r="10" />
         <path d="m15 9-6 6" />
         <path d="m9 9 6 6" />
     </svg>
 )
-
-    
