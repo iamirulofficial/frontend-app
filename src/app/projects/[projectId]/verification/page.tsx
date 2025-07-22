@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { projects, bhuSetuData } from '@/data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Users, AlertCircle, FileText, Check, X, Bot, FileCheck2, Search } from 'lucide-react';
@@ -14,8 +14,11 @@ import {
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts"
 import { Button } from '@/components/ui/button';
 
-export default function VerificationPage({ params }: { params: { projectId:string } }) {
-  const project = projects.find((p) => p.id === params.projectId);
+export default function VerificationPage() {
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const project = projects.find((p) => p.id === projectId);
+  
   if (!project || project.id !== 'bhu-setu-2') {
     notFound();
   }
@@ -95,7 +98,7 @@ export default function VerificationPage({ params }: { params: { projectId:strin
                     <ChartContainer config={chartConfig} className="mx-auto aspect-square h-[200px]">
                       <ResponsiveContainer>
                         <PieChart>
-                          <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                          <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                           <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={50} strokeWidth={5} paddingAngle={5}>
                              {chartData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.fill} />

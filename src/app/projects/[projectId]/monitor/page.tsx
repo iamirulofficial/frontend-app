@@ -1,4 +1,6 @@
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useParams } from 'next/navigation';
 import { projects, bhuSetuData } from '@/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart2, AlertTriangle, IndianRupee, Wifi, Handshake, ShieldCheck, TrendingUp, Rocket } from 'lucide-react';
@@ -19,8 +21,11 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
 import { Button } from '@/components/ui/button';
 
-export default function MonitorPage({ params }: { params: { projectId: string } }) {
-  const project = projects.find((p) => p.id === params.projectId);
+export default function MonitorPage() {
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const project = projects.find((p) => p.id === projectId);
+
   if (!project || project.id !== 'bhu-setu-2') {
     notFound();
   }

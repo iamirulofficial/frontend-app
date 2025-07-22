@@ -1,4 +1,6 @@
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useParams } from 'next/navigation';
 import { projects, bhuSetuData } from '@/data';
 import { KpiCard } from '@/components/kpi-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,8 +15,11 @@ import { TrendingUp, AlertTriangle, BadgeCheck, MapPin, LayoutDashboard, Clipboa
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function DashboardPage({ params }: { params: { projectId: string } }) {
-  const project = projects.find((p) => p.id === params.projectId);
+export default function DashboardPage() {
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const project = projects.find((p) => p.id === projectId);
+  
   if (!project) {
     notFound();
   }
