@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   Construction,
-  CheckCircle,
+  FileCheck2,
   BarChart2,
   Archive,
   Bot
@@ -28,7 +28,7 @@ const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/planning', icon: ClipboardList, label: 'Planning' },
   { href: '/execution', icon: Construction, label: 'Execution' },
-  { href: '/verification', icon: CheckCircle, label: 'Verification' },
+  { href: '/verification', icon: FileCheck2, label: 'Verification' },
   { href: '/monitor', icon: BarChart2, label: 'Monitor' },
 ];
 

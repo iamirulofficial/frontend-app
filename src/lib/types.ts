@@ -19,6 +19,11 @@ export interface PlanningData {
     delayRisk: number;
     capexCr: number;
   }[];
+  pppFinancials: {
+    concessionLength: number;
+    viabilityGapFunding: number;
+    userFee: number;
+  };
 }
 
 export interface ExecutionData {
@@ -37,6 +42,18 @@ export interface ExecutionData {
     title: string;
     value: string;
   }[];
+  valueCreation: {
+    apiMarketplace: {
+      name: string;
+      description: string;
+      value: string;
+    };
+    ancillaryServices: {
+      name: string;
+      description: string;
+      value: string;
+    };
+  };
 }
 
 export interface VerificationData {
@@ -51,7 +68,12 @@ export interface VerificationData {
     id: string;
     imageUrl: string;
     location: string;
+    isMismatch: boolean;
   }[];
+  qualityScorecard: {
+    averageScore: number;
+    parcelsForResurvey: number;
+  };
 }
 
 export interface MonitorData {
@@ -62,6 +84,12 @@ export interface MonitorData {
     id:string;
     description: string;
     severity: 'low' | 'medium' | 'high';
+  }[];
+  pppOversight: {
+    metric: string;
+    target: string;
+    actual: string;
+    status: 'on-track' | 'at-risk' | 'breached';
   }[];
 }
 

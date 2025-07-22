@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 
 interface KpiCardProps {
   title: string;
@@ -10,6 +10,7 @@ interface KpiCardProps {
   prefix?: string;
   suffix?: string;
   colorClass?: string;
+  description?: string;
 }
 
 const AnimatedCounter = ({ to, duration = 1.5 }: { to: number, duration?: number }) => {
@@ -45,19 +46,20 @@ const AnimatedCounter = ({ to, duration = 1.5 }: { to: number, duration?: number
 };
 
 
-export function KpiCard({ title, value, icon, prefix = '', suffix = '', colorClass = 'text-primary' }: KpiCardProps) {
+export function KpiCard({ title, value, icon, prefix = '', suffix = '', colorClass = 'text-primary', description }: KpiCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={`h-6 w-6 ${colorClass}`}>{icon}</div>
+        <div className={`h-6 w-6 text-muted-foreground ${colorClass}`}>{icon}</div>
       </CardHeader>
       <CardContent>
-        <div className="text-4xl font-bold font-headline">
+        <div className={`text-4xl font-bold font-headline ${colorClass}`}>
           {prefix}
           <AnimatedCounter to={value} />
           {suffix}
         </div>
+        {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
       </CardContent>
     </Card>
   );
