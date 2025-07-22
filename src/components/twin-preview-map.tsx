@@ -1,45 +1,22 @@
+
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Map, { Source, Layer, MapRef, Point } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-// Dummy GeoJSON: two sample parcels
-const DUMMY_PARCELS = {
-  type: 'FeatureCollection',
-  features: [
-    {
-      type: 'Feature',
-      properties: { progress: 0.64, id: 'P-1023' },
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [77.60,12.92],
-            [77.61,12.92],
-            [77.61,12.93],
-            [77.60,12.93],
-            [77.60,12.92]
-          ]
-        ]
-      }
-    },
-    {
-      type: 'Feature',
-      properties: { progress: 0.22, id: 'P-1047' },
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [77.58,12.90],
-            [77.59,12.90],
-            [77.59,12.91],
-            [77.58,12.91],
-            [77.58,12.90]
-          ]
-        ]
-      }
-    }
-  ]
+export type ParcelProperties = {
+  progress: number;
+  id: string;
+  isBPL?: boolean;
+};
+
+export type Parcel = {
+  type: 'Feature';
+  properties: ParcelProperties;
+  geometry: {
+    type: 'Polygon';
+    coordinates: number[][][];
+  };
 };
 
 type HoverInfo = {
@@ -49,10 +26,21 @@ type HoverInfo = {
     y: number;
 }
 
-export const TwinPreviewMap = () => {
+interface TwinPreviewMapProps {
+    parcels: Parcel[];
+}
+
+
+export const TwinPreviewMap = ({ parcels }: TwinPreviewMapProps) => {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
 
   const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+  const geojsonData = useMemo(() => ({
+      type: 'FeatureCollection',
+      features: parcels
+  }), [parcels]);
+
 
   if (!mapTilerKey) {
       console.warn("MapTiler key is not set. Please set NEXT_PUBLIC_MAPTILER_KEY in your environment.");
@@ -87,7 +75,7 @@ export const TwinPreviewMap = () => {
       onMouseLeave={() => setHoverInfo(null)}
     >
       {/* Parcel extrusion & fill */}
-      <Source id="parcels" type="geojson" data={DUMMY_PARCELS as any}>
+      <Source id="parcels" type="geojson" data={geojsonData as any}>
         {/* Fill layer */}
         <Layer
           id="parcels-fill"

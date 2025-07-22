@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -19,7 +20,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { failureDrivers, wbs, wbsRegenerated } from '@/data/planning';
-import { TwinPreviewMap } from '@/components/twin-preview-map';
+import { TwinPreviewMap, Parcel } from '@/components/twin-preview-map';
 
 
 const IRRDonut = ({ value }: { value: number }) => {
@@ -54,6 +55,11 @@ const failureDonutData = [
   { name: 'Fail', value: 65, color: 'hsl(var(--destructive))' },
 ]
 
+const initialParcels: Parcel[] = [
+    { type: 'Feature', properties: { progress: 0.64, id: 'P-1023' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
+    { type: 'Feature', properties: { progress: 0.22, id: 'P-1047', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.58,12.90], [77.59,12.90], [77.59,12.91], [77.58,12.91], [77.58,12.90]] ] } }
+];
+
 export default function SandboxPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -66,6 +72,8 @@ export default function SandboxPage() {
     
     const [isMcModalOpen, setIsMcModalOpen] = useState(false);
     const [isMcLoading, setIsMcLoading] = useState(false);
+    
+    const [parcelData, setParcelData] = useState<Parcel[]>(initialParcels);
     
     const isRegenerated = searchParams.get('regenerate') === 'true';
 
@@ -109,6 +117,35 @@ export default function SandboxPage() {
         // This simulates regenerating the WBS and looping back
         router.push('/projects/bhu-setu-2/planning/wbs?regenerate=true');
     }
+    
+     // Effect to update map parcels based on slider changes
+    useEffect(() => {
+        const newParcelData = initialParcels.map(p => {
+            let progress = p.properties.progress;
+            
+            // Model: High user fees slightly slow down overall progress
+            progress -= (fee[0] - 40) / 800;
+
+            // Model: BPL subsidy boosts progress for designated BPL parcels
+            if (p.properties.isBPL) {
+                progress += subsidy[0] / 500;
+            }
+            
+            // Model: Higher government annuity boosts overall confidence and progress
+            progress += (annuity[0] - 20) / 600;
+
+            return {
+                ...p,
+                properties: {
+                    ...p.properties,
+                    progress: Math.max(0, Math.min(1, progress)) // clamp between 0 and 1
+                }
+            };
+        });
+        setParcelData(newParcelData);
+
+    }, [fee, subsidy, annuity]);
+
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -136,7 +173,7 @@ export default function SandboxPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
          <div className="w-full h-full min-h-[600px] rounded-lg shadow-md overflow-hidden">
-            <TwinPreviewMap />
+            <TwinPreviewMap parcels={parcelData} />
          </div>
         
         {/* Controls & Metrics */}
@@ -267,12 +304,3 @@ export default function SandboxPage() {
     </div>
   );
 }
-
-// Dummy Icon for Dialog Title
-const XCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <circle cx="12" cy="12" r="10" />
-        <path d="m15 9-6 6" />
-        <path d="m9 9 6 6" />
-    </svg>
-)
