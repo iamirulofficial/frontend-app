@@ -52,9 +52,11 @@ type HoverInfo = {
 export const TwinPreviewMap = () => {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
 
-  const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY || "key";
-  if (mapTilerKey === "key") {
+  const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+  if (!mapTilerKey) {
       console.warn("MapTiler key is not set. Please set NEXT_PUBLIC_MAPTILER_KEY in your environment.");
+      return <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">MapTiler API Key is missing.</div>
   }
 
   return (
@@ -83,6 +85,7 @@ export const TwinPreviewMap = () => {
           setHoverInfo(null);
         }
       }}
+      onMouseLeave={() => setHoverInfo(null)}
     >
       {/* Parcel extrusion & fill */}
       <Source id="parcels" type="geojson" data={DUMMY_PARCELS as any}>
