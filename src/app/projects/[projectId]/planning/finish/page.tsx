@@ -20,7 +20,7 @@ export default function FinishPage() {
         // In a real app, this would trigger a backend process.
         // Here, we just navigate.
         setTimeout(() => {
-            router.push('/projects/bhu-setu-2/execution');
+            router.push('/projects/bhu-setu-2/dashboard');
         }, 1500)
     };
     
@@ -88,3 +88,5 @@ export default function FinishPage() {
     </div>
   );
 }
+
+    

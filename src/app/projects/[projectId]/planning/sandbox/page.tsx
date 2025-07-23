@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
-import { Info, Repeat, XCircle, Users, Target, Banknote, Landmark, Shield, Percent, IndianRupee } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Info, Repeat, XCircle, Users, Target, Banknote, Landmark, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -19,7 +19,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { failureDrivers, wbs, wbsRegenerated } from '@/data/planning';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { failureDrivers } from '@/data/planning';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
 import { cn } from '@/lib/utils';
 
@@ -326,7 +327,7 @@ export default function SandboxPage() {
           </Link>
         </Button>
         <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700" asChild>
-          <Link href="/projects/bhu-setu-2/planning/finish">
+          <Link href={`/projects/bhu-setu-2/planning/finish?regenerated=${isRegenerated}`}>
             Next: Finalize Plan
           </Link>
         </Button>
@@ -399,3 +400,4 @@ export default function SandboxPage() {
   );
 }
 
+    
