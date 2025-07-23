@@ -172,6 +172,7 @@ export default function SandboxPage() {
             };
         });
         setParcelData(newParcelData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fee, subsidy, annuity]);
 
 
