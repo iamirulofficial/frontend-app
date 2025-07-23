@@ -2,28 +2,59 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Info, Pin } from 'lucide-react';
+import { Check, X, Info, Pin, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card, CardContent, CardHeader, CardTitle, CardDescription
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from "@/components/ui/checkbox";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger
+} from '@/components/ui/accordion';
+import {
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
+} from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
-import { insights, radarAxes, radarPolygons, corpusProjects } from '@/data/planning';
+import {
+  ResponsiveContainer, RadarChart, PolarGrid,
+  PolarAngleAxis, Radar, Legend
+} from 'recharts';
+import {
+  insights, radarAxes, radarPolygons, corpusProjects
+} from '@/data/planning';
 
 type Insight = { id: string; title: string; detail: string; };
 
+// Our “Copilot” picks these three for you
+const AI_RECOMMEND = ['aadhaar','upi','digilocker'];
+
 export default function SparkScanPage() {
   const { toast } = useToast();
-  const [selectedProjects, setSelectedProjects] = useState<string[]>(['aadhaar', 'upi']);
+
+  // AI state: 'suggested' → show copilot card; 'accepted' → show scan workflow
+  const [aiState, setAiState] = useState<'suggested'|'accepted'>('suggested');
+
+  // Standard SPARK scan states
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [pinnedPractices, setPinnedPractices] = useState<Insight[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanCompleted, setScanCompleted] = useState(false);
+
+  // When AI accepted, pre‑select the recommendations
+  useEffect(() => {
+    if (aiState === 'accepted') {
+      setSelectedProjects(AI_RECOMMEND);
+      // auto‑pin top 2 practices
+      setPinnedPractices([
+        insights['aadhaar'].success[0],
+        insights['upi'].success[0]
+      ]);
+    }
+  }, [aiState]);
 
   const handleToggleProject = (projectId: string) => {
     setSelectedProjects(prev =>
@@ -35,259 +66,264 @@ export default function SparkScanPage() {
 
   const handleRunScan = () => {
     if (selectedProjects.length === 0) {
-        toast({ title: "Select Projects", description: "Please select at least one project to scan.", variant: "destructive" });
-        return;
+      toast({ title: "Select Projects", description: "Please select at least one project to scan.", variant: "destructive" });
+      return;
     }
     setIsScanning(true);
     setScanCompleted(false);
     setScanProgress(0);
     const interval = setInterval(() => {
-      setScanProgress(prev => {
-        if (prev >= 100) {
+      setScanProgress(p => {
+        if (p >= 100) {
           clearInterval(interval);
           setIsScanning(false);
           setScanCompleted(true);
           return 100;
         }
-        return prev + 5;
+        return p + 5;
       });
     }, 100);
   };
-  
+
   const handlePin = (practice: Insight) => {
     if (pinnedPractices.find(p => p.id === practice.id)) {
-      setPinnedPractices(pinnedPractices.filter(p => p.id !== practice.id));
+      setPinnedPractices(p => p.filter(x => x.id !== practice.id));
+    } else if (pinnedPractices.length < 5) {
+      setPinnedPractices(p => [...p, practice]);
+      toast({ title: "Pinned", description: `'${practice.title}' added.` });
     } else {
-       if (pinnedPractices.length < 5) {
-         setPinnedPractices([...pinnedPractices, practice]);
-         toast({ title: "Practice Pinned", description: `'${practice.title}' added to your blueprint.` });
-       }
+      toast({ title: "Limit Reached", description: "You can pin up to 5 practices.", variant: "destructive" });
     }
   };
-  
+
   const filteredInsights = useMemo(() => {
     const allSuccess = selectedProjects.flatMap(id => insights[id as keyof typeof insights]?.success || []);
     const allPitfalls = selectedProjects.flatMap(id => insights[id as keyof typeof insights]?.pitfalls || []);
     return { success: allSuccess, pitfalls: allPitfalls };
   }, [selectedProjects]);
 
-  const radarData = useMemo(() => {
-      return radarPolygons.filter(poly => selectedProjects.includes(poly.id));
-  }, [selectedProjects]);
+  const radarData = useMemo(() =>
+    radarPolygons.filter(poly => selectedProjects.includes(poly.id)),
+  [selectedProjects]);
 
-  const radarColors = ['#10B981', '#3B82F6', '#F59E0B', '#6366F1', '#EC4899', '#F97316'];
+  const radarColors = ['#10B981','#3B82F6','#F59E0B','#6366F1','#EC4899','#F97316'];
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold font-headline tracking-tight text-slate-800 flex items-center">
-           ✨ SPARK Scan: Extract Lessons from Past Projects
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-5 w-5 ml-3 text-muted-foreground cursor-pointer" />
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p className="font-semibold">Positive Deviance Case Selection (PDCS)</p>
-                <p>PDCS surfaces teams/projects whose practices are intentional, unusual, and honourable. We extract those “bright-spots” here so you can replicate them in Bhu-Setu.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </h1>
-        <p className="mt-2 text-lg text-muted-foreground">
-          Compare 5 landmark e-governance roll-outs, find patterns that drive ROI & speed.
-        </p>
-      </div>
+    <div className="container mx-auto py-8 px-4 max-w-5xl space-y-8">
+      
+      {/* AI Copilot Suggestion */}
+      <AnimatePresence>
+      {aiState === 'suggested' && (
+        <motion.div
+          initial={{ opacity:0, y:10 }}
+          animate={{ opacity:1, y:0 }}
+          exit={{ opacity:0, y:10 }}
+          className="bg-blue-50 border-blue-200 border p-6 rounded-lg shadow flex items-start space-x-4"
+        >
+          <MessageSquare className="h-6 w-6 text-blue-600" />
+          <div className="flex-1">
+            <p className="text-blue-800">
+              “Based on PDCS analysis, I suggest scanning <strong>Aadhaar</strong>, <strong>UPI</strong>, and <strong>DigiLocker</strong> for best ‘bright‑spot’ practices.”
+            </p>
+            <div className="mt-4 flex space-x-3">
+              <Button onClick={() => setAiState('accepted')} size="sm">Apply Suggestion</Button>
+              <Button variant="outline" size="sm" onClick={() => setAiState('accepted')}>
+                Customize Myself
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+      </AnimatePresence>
 
+      {/* Main Grid */}
+      {aiState === 'accepted' && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Panel */}
+
+        {/* Left */}
         <div className="lg:col-span-2 space-y-8">
-          <Card className="bg-white shadow-sm">
+
+          {/* Corpus Selector */}
+          <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-semibold text-slate-800">1. Corpus Selector</CardTitle>
-              <CardDescription>Choose the landmark projects you want to analyze.</CardDescription>
+              <CardTitle className="text-2xl">1. Corpus Selector</CardTitle>
+              <CardDescription>Review or tweak Copilot's picks</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {corpusProjects.map(project => (
-                  <div key={project.id} className="flex items-center space-x-2">
+                {corpusProjects.map(proj => (
+                  <label key={proj.id} className="flex items-center space-x-2">
                     <Checkbox
-                      id={project.id}
-                      checked={selectedProjects.includes(project.id)}
-                      onCheckedChange={() => handleToggleProject(project.id)}
-                      className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      checked={selectedProjects.includes(proj.id)}
+                      onCheckedChange={() => handleToggleProject(proj.id)}
                     />
-                    <label htmlFor={project.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      {project.name}
-                    </label>
-                  </div>
+                    <span className="capitalize">{proj.name}</span>
+                  </label>
                 ))}
               </div>
-              <Button onClick={handleRunScan} disabled={isScanning || selectedProjects.length === 0} size="lg" className="mt-6 w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white">
-                {isScanning ? 'Scanning...' : 'Run Scan'}
+              <Button
+                onClick={handleRunScan}
+                disabled={isScanning || scanCompleted}
+                className="mt-6"
+              >
+                {isScanning
+                  ? <Loader2 className="animate-spin mr-2 h-4 w-4"/> 
+                  : <Check className="mr-2 h-4 w-4"/>}
+                {isScanning ? 'Scanning…' : scanCompleted ? 'Re‑Scan' : 'Run SPARK Scan'}
               </Button>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm h-[400px]">
+
+          {/* Radar Chart */}
+          <Card className="h-[400px]">
             <CardHeader>
-                <CardTitle className="text-2xl font-semibold text-slate-800">3. Live Radar Chart (Success vs Risk)</CardTitle>
-                 <CardDescription>5 axes: Cost, Delay, Quality, Scale, Inclusivity</CardDescription>
+              <CardTitle className="text-2xl">3. Live Radar Chart</CardTitle>
+              <CardDescription>Cost · Delay · Quality · Scale · Inclusivity</CardDescription>
             </CardHeader>
             <CardContent>
               {isScanning ? (
-                  <div className="h-[250px] flex flex-col items-center justify-center text-center">
-                    <p className="mb-4">Scanning 1.8M logged events...</p>
-                    <Progress value={scanProgress} className="w-1/2" />
-                  </div>
-              ) : scanCompleted && radarData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                <div className="flex flex-col items-center justify-center h-full space-y-4">
+                  <p>Analyzing {selectedProjects.length * 0.6}M events…</p>
+                  <Progress value={scanProgress} className="w-2/3"/>
+                </div>
+              ) : scanCompleted && radarData.length ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={radarData}>
                     <PolarGrid />
-                    <PolarAngleAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                    {radarData.map((poly, index) => (
-                         <Radar
-                            key={poly.name}
-                            name={poly.name}
-                            dataKey="value"
-                            data={poly.data}
-                            stroke={radarColors[index % radarColors.length]}
-                            fill={radarColors[index % radarColors.length]}
-                            fillOpacity={0.6}
-                            animationBegin={index * 100}
-                         />
+                    <PolarAngleAxis dataKey="name" />
+                    <PolarRadiusAxis angle={30} domain={[0,1]}/>
+                    {radarData.map((poly,i) => (
+                      <Radar
+                        key={poly.name}
+                        name={poly.name}
+                        dataKey="value"
+                        data={poly.data}
+                        stroke={radarColors[i]}
+                        fill={radarColors[i]}
+                        fillOpacity={0.5}
+                      />
                     ))}
-                    <Legend />
+                    <Legend verticalAlign="top"/>
                   </RadarChart>
                 </ResponsiveContainer>
               ) : (
-                 <div className="h-[250px] flex items-center justify-center text-muted-foreground">
-                    <p>Run a scan to see project comparisons.</p>
-                 </div>
+                <div className="h-full flex items-center justify-center text-muted-foreground">
+                  <p>Run a scan to visualize comparisons.</p>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Panel */}
+        {/* Right */}
         <div className="space-y-8">
-          <Card className="bg-white shadow-sm">
+
+          {/* Keystone Basket */}
+          <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-semibold text-slate-800">4. Keystone Practice Basket</CardTitle>
-              <CardDescription className="flex justify-between items-center">
-                <span>Pin up to 5 practices.</span>
-                <Badge variant="secondary">{pinnedPractices.length}/5 Practices</Badge>
-              </CardDescription>
+              <CardTitle className="text-2xl">4. Keystone Practices</CardTitle>
+              <Badge>{pinnedPractices.length}/5</Badge>
             </CardHeader>
             <CardContent className="min-h-[150px]">
-                <AnimatePresence>
-                {pinnedPractices.length > 0 ? (
-                    <ul className="space-y-2">
-                    {pinnedPractices.map((practice) => (
-                        <motion.li
-                            key={practice.id}
-                            layoutId={practice.id}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3 }}
-                            className="flex items-center justify-between p-3 bg-secondary rounded-md text-secondary-foreground"
-                        >
-                            <span className="text-sm font-medium">{practice.title}</span>
-                            <button onClick={() => handlePin(practice)} className="text-muted-foreground hover:text-destructive">
-                                <X className="h-4 w-4" />
-                            </button>
-                        </motion.li>
-                    ))}
-                    </ul>
-                ) : (
-                    <p className="text-muted-foreground text-center py-8">No keystone practices yet. Hover & click 📌 to add.</p>
-                )}
-                </AnimatePresence>
+              <AnimatePresence>
+                {pinnedPractices.length
+                  ? pinnedPractices.map(p => (
+                    <motion.div
+                      key={p.id}
+                      layout
+                      initial={{ opacity:0, x:20 }}
+                      animate={{ opacity:1, x:0 }}
+                      exit={{ opacity:0, x:-20 }}
+                      className="flex items-center justify-between p-3 bg-secondary rounded"
+                    >
+                      <span>{p.title}</span>
+                      <X
+                        className="cursor-pointer"
+                        onClick={() => handlePin(p)}
+                      />
+                    </motion.div>
+                  ))
+                  : <p className="text-center text-muted-foreground">No practices pinned. Pin from Insights below.</p>
+                }
+              </AnimatePresence>
             </CardContent>
           </Card>
 
-          <Card className="bg-white shadow-sm">
+          {/* Insights Feed */}
+          <Card>
             <CardHeader>
-               <CardTitle className="text-2xl font-semibold text-slate-800">5. Insights Feed</CardTitle>
+              <CardTitle className="text-2xl">5. Insights Feed</CardTitle>
             </CardHeader>
             <CardContent>
-                {scanCompleted ? (
-                <Accordion type="multiple" defaultValue={['success-patterns', 'pitfalls']} className="w-full">
-                    <AccordionItem value="success-patterns">
-                        <AccordionTrigger>
-                            <div className="flex items-center gap-2">
-                                <Badge className="bg-emerald-100 text-emerald-800">Success Patterns</Badge>
-                                <span>{filteredInsights.success.length} found</span>
-                            </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                           <ul className="space-y-2">
-                                {filteredInsights.success.map((item, index) => (
-                                    <motion.li 
-                                        key={item.id}
-                                        className="p-3 rounded-lg bg-emerald-50/50 border border-emerald-100 group"
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.05 }}
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <p className="font-semibold text-emerald-900">{item.title}</p>
-                                            <button onClick={() => handlePin(item)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Pin className="h-4 w-4 text-muted-foreground hover:text-primary"/>
-                                            </button>
-                                        </div>
-                                        <p className="text-sm text-emerald-800">{item.detail}</p>
-                                    </motion.li>
-                                ))}
-                           </ul>
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="pitfalls">
-                        <AccordionTrigger>
-                            <div className="flex items-center gap-2">
-                                <Badge className="bg-rose-100 text-rose-800">Pitfalls</Badge>
-                                <span>{filteredInsights.pitfalls.length} found</span>
-                            </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                           <ul className="space-y-2">
-                                {filteredInsights.pitfalls.map((item, index) => (
-                                    <motion.li 
-                                        key={item.id}
-                                        className="p-3 rounded-lg bg-rose-50/50 border border-rose-100"
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.05 }}
-                                    >
-                                        <p className="font-semibold text-rose-900">{item.title}</p>
-                                        <p className="text-sm text-rose-800">{item.detail}</p>
-                                    </motion.li>
-                                ))}
-                           </ul>
-                        </AccordionContent>
-                    </AccordionItem>
+              {scanCompleted ? (
+                <Accordion type="multiple" defaultValue={['succ','pit']}>
+                  <AccordionItem value="succ">
+                    <AccordionTrigger>
+                      <Badge className="bg-emerald-100 text-emerald-800">Success</Badge>
+                      <span className="ml-2">({filteredInsights.success.length})</span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {filteredInsights.success.map((it,i) => (
+                        <motion.div
+                          key={it.id}
+                          initial={{ opacity:0, y:-5 }}
+                          animate={{ opacity:1, y:0 }}
+                          transition={{ delay: i*0.05 }}
+                          className="p-3 border-l-4 border-emerald-400 mb-2"
+                        >
+                          <div className="flex justify-between items-start">
+                            <p className="font-semibold">{it.title}</p>
+                            <Pin
+                              className="cursor-pointer"
+                              onClick={() => handlePin(it)}
+                            />
+                          </div>
+                          <p className="text-sm text-muted-foreground">{it.detail}</p>
+                        </motion.div>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="pit">
+                    <AccordionTrigger>
+                      <Badge className="bg-rose-100 text-rose-800">Pitfalls</Badge>
+                      <span className="ml-2">({filteredInsights.pitfalls.length})</span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {filteredInsights.pitfalls.map((it,i) => (
+                        <motion.div
+                          key={it.id}
+                          initial={{ opacity:0, y:-5 }}
+                          animate={{ opacity:1, y:0 }}
+                          transition={{ delay: i*0.05 }}
+                          className="p-3 border-l-4 border-rose-400 mb-2"
+                        >
+                          <p className="font-semibold">{it.title}</p>
+                          <p className="text-sm text-muted-foreground">{it.detail}</p>
+                        </motion.div>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
                 </Accordion>
-                ) : (
-                    <p className="text-muted-foreground text-center py-8">Run a scan to generate insights.</p>
-                )}
+              ) : (
+                <p className="text-center text-muted-foreground py-12">
+                  Run a scan to reveal success patterns & pitfalls.
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
-      
-       <div className="flex justify-between mt-12">
-           <Button variant="outline" asChild>
-                <Link href="/projects/bhu-setu-2/planning/charter">
-                   Back: Charter
-                </Link>
-            </Button>
-            <Button size="lg" asChild disabled={pinnedPractices.length < 3}>
-                <Link href="/projects/bhu-setu-2/planning/wbs">
-                    Next: Build WBS
-                </Link>
-            </Button>
-        </div>
+      )}
+
+      {/* Navigation */}
+      <div className="flex justify-between mt-12">
+        <Button variant="outline" asChild>
+          <Link href="/projects/bhu-setu-2/planning/charter">Back: Charter</Link>
+        </Button>
+        <Button size="lg" asChild disabled={pinnedPractices.length < 3 || !scanCompleted}>
+          <Link href="/projects/bhu-setu-2/planning/wbs">Next: Build WBS</Link>
+        </Button>
+      </div>
     </div>
   );
 }
