@@ -49,7 +49,7 @@ import {
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
-import Image from 'next/image';
+import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
 
 const monitorData = bhuSetuData.monitor;
 
@@ -73,6 +73,13 @@ const summaryKpis = [
   },
   { title: 'Disputes Pending', value: 3500, unit: '', icon: <AlertTriangle /> },
 ];
+
+const parcels: Parcel[] = [
+    { type: 'Feature', properties: { progress: 0.94, id: 'P-1023' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
+    { type: 'Feature', properties: { progress: 0.52, id: 'P-1047', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.58,12.90], [77.59,12.90], [77.59,12.91], [77.58,12.91], [77.58,12.90]] ] } },
+    { type: 'Feature', properties: { progress: 0.35, id: 'P-1055' }, geometry: { type: 'Polygon', coordinates: [ [[77.62,12.91], [77.63,12.91], [77.63,12.92], [77.62,12.92], [77.62,12.91]] ] } },
+];
+
 
 const anomalyColors = {
   high: 'bg-red-500',
@@ -245,8 +252,8 @@ export default function MonitorPage() {
                     <CardDescription>Live digitization progress across India.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="w-full h-[400px] relative rounded-lg overflow-hidden bg-muted/30 p-4">
-                        <Image src="https://images.unsplash.com/photo-1621293393853-af8a78633b63?q=80&w=1200&auto=format&fit=crop" alt="Map of India with highlighted regions" layout="fill" objectFit="contain" data-ai-hint="India map" />
+                    <div className="w-full h-[400px] relative rounded-lg overflow-hidden bg-muted/30">
+                        <TwinPreviewMap parcels={parcels} />
                     </div>
                 </CardContent>
             </Card>
@@ -383,3 +390,6 @@ export default function MonitorPage() {
   );
 }
 
+
+
+    
