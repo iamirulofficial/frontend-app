@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { toast } from '@/hooks/use-toast';
 import { AiCopilot } from '@/components/ai-copilot';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
@@ -302,4 +302,3 @@ export default function ExecutionPage() {
         </TooltipProvider>
     );
 }
-
