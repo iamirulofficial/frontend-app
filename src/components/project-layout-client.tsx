@@ -6,6 +6,7 @@ import { projects } from '@/data';
 import { ProjectSidebar } from '@/components/project-sidebar';
 import { AiCopilot } from '@/components/ai-copilot';
 import { PlanningStepper } from '@/components/planning-stepper';
+import { ExecutionStepper } from './execution-stepper';
 
 export function ProjectLayoutClient({
   children,
@@ -23,6 +24,7 @@ export function ProjectLayoutClient({
   }
 
   const isPlanningPage = pathname.includes('/planning');
+  const isExecutionPage = pathname.includes('/execution');
   
   // Note: The main AiCopilot for the execution page is now managed within that page itself.
   // This one remains for other project pages that might use the sidebar button.
@@ -33,6 +35,7 @@ export function ProjectLayoutClient({
       <AiCopilot open={isCopilotOpen} onOpenChange={setIsCopilotOpen} />
       <div className="flex-1 flex flex-col">
         {isPlanningPage && <PlanningStepper />}
+        {isExecutionPage && <ExecutionStepper />}
         <div className="p-4 sm:p-6 lg:p-8 flex-1 bg-gray-50">{children}</div>
       </div>
     </div>
