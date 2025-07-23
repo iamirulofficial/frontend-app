@@ -33,7 +33,7 @@ const navItems = [
   { href: '/planning', icon: ClipboardList, label: 'Planning' },
   { href: '/execution', icon: Construction, label: 'Execution' },
   { href: '/verification', icon: FileCheck2, label: 'Verification' },
-  { href: '/monitor', icon: BarChart2, label: 'Monitor', disabled: true },
+  { href: '/monitor', icon: BarChart2, label: 'Monitor' },
 ];
 
 export function ProjectSidebar({ project, onAiCopilotClick }: ProjectSidebarProps) {

@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -23,10 +24,7 @@ import {
   Settings,
   Banknote,
   AlertTriangle,
-  Clock,
-  CheckCircle,
   FileText,
-  Signal,
   Smile,
   Server,
   Target,
@@ -42,9 +40,16 @@ import {
   Cell,
   RadialBarChart,
   RadialBar,
+  Legend,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart as RechartsBarChart,
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
+import Image from 'next/image';
 
 const monitorData = bhuSetuData.monitor;
 
@@ -189,6 +194,11 @@ const DonutChart = ({
   );
 };
 
+const grievanceData = [
+  { name: 'Filed', value: 3500, fill: 'hsl(var(--destructive))' },
+  { name: 'Resolved', value: 3150, fill: 'hsl(var(--accent))' },
+];
+
 export default function MonitorPage() {
   return (
     <div className="space-y-8">
@@ -226,108 +236,150 @@ export default function MonitorPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {/* Anomaly Alerts & PPP Partner */}
-        <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Anomaly Alerts</CardTitle>
-              <CardDescription>Live feed of critical system events.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {monitorData.anomalies.map((anomaly, index) => (
-                  <motion.div
-                    key={anomaly.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div
-                      className={`h-3 w-3 flex-shrink-0 rounded-full ${
-                        anomalyColors[anomaly.severity]
-                      }`}
-                    />
-                    <p className="flex-grow text-sm">{anomaly.description}</p>
-                    <Badge variant="outline" className="capitalize">
-                      {anomaly.severity}
-                    </Badge>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>PPP Partner Performance</CardTitle>
-              <CardDescription>
-                Live operational metrics for Service Providers.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Partner</TableHead>
-                    <TableHead>Uptime</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {monitorData.pppOversight.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item.metric}</TableCell>
-                      <TableCell
-                        className={`${statusColors[item.status]}`}
-                      >
-                        {item.actual}
-                      </TableCell>
-                      <TableCell className="text-right">{item.target}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* Regional Status & Anomalies */}
+        <div className="lg:col-span-2 space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Regional Rollout Status</CardTitle>
+                    <CardDescription>Live digitization progress across India.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="w-full h-[400px] relative rounded-lg overflow-hidden bg-muted/30 p-4">
+                        <Image src="https://images.unsplash.com/photo-1621293393853-af8a78633b63?q=80&w=1200&auto=format&fit=crop" alt="Map of India with highlighted regions" layout="fill" objectFit="contain" data-ai-hint="India map" />
+                    </div>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                <CardTitle>AI Anomaly Alerts</CardTitle>
+                <CardDescription>Live feed of critical system events.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                <div className="space-y-4">
+                    {monitorData.anomalies.map((anomaly, index) => (
+                    <motion.div
+                        key={anomaly.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center gap-3"
+                    >
+                        <div
+                        className={`h-3 w-3 flex-shrink-0 rounded-full ${
+                            anomalyColors[anomaly.severity]
+                        }`}
+                        />
+                        <p className="flex-grow text-sm">{anomaly.description}</p>
+                        <Badge variant="outline" className="capitalize">
+                        {anomaly.severity}
+                        </Badge>
+                    </motion.div>
+                    ))}
+                </div>
+                </CardContent>
+            </Card>
         </div>
-
-        {/* Citizen & Gov Metrics */}
+        
+        {/* Metrics Column */}
         <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Citizen-Centric Service Metrics</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Avg. Title Transfer</p>
-                <p className="text-2xl font-bold">7 days</p>
-                <MiniSparkline />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Citizen NPS</p>
-                <DonutChart value={72} label="NPS" color="hsl(var(--chart-1))" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Government-Centric Ops Metrics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-1">
-                <p className="text-sm font-medium">Budget Utilization (64%)</p>
-                <Progress value={64} />
-              </div>
-              <BulletChart
-                value={1.2}
-                target={2}
-                label="Fee Income vs. Target"
-              />
-            </CardContent>
-          </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Tech & Ops Health</CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-around">
+                     <div className="text-center">
+                        <ResponsiveContainer width={120} height={120}>
+                            <RadialBarChart innerRadius="70%" outerRadius="100%" data={[{ name: 'Uptime', value: 99.2, fill: 'hsl(var(--chart-2))' }]} startAngle={90} endAngle={-270}>
+                                <RadialBar dataKey="value" cornerRadius={10} />
+                                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-foreground">{99.2}%</text>
+                                <text x="50%" y="65%" textAnchor="middle" dominantBaseline="middle" className="text-xs fill-muted-foreground">API Uptime</text>
+                            </RadialBarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                <CardTitle>Citizen-Centric Service Metrics</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Avg. Title Transfer</p>
+                    <p className="text-2xl font-bold">7 days</p>
+                    <MiniSparkline />
+                </div>
+                <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Citizen NPS</p>
+                    <DonutChart value={72} label="NPS" color="hsl(var(--chart-1))" />
+                </div>
+                 <div className="col-span-2 space-y-2">
+                    <p className="text-sm text-muted-foreground">Grievances Filed vs Resolved</p>
+                    <ResponsiveContainer width="100%" height={100}>
+                      <RechartsBarChart data={grievanceData} layout="vertical" barSize={20}>
+                        <XAxis type="number" hide />
+                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} dx={-10} />
+                        <Tooltip cursor={{ fill: 'hsl(var(--muted)/0.5)' }} />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]} />
+                      </RechartsBarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+            </Card>
+            
+            <Card>
+                <CardHeader>
+                <CardTitle>Government-Centric Ops Metrics</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                <div className="space-y-1">
+                    <p className="text-sm font-medium">Budget Utilization (64%)</p>
+                    <Progress value={64} />
+                </div>
+                <BulletChart
+                    value={1.2}
+                    target={2}
+                    label="Fee Income vs. Target"
+                />
+                </CardContent>
+            </Card>
+
+             <Card>
+                <CardHeader>
+                <CardTitle>PPP Partner Performance</CardTitle>
+                <CardDescription>
+                    Live operational metrics for Service Providers.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Partner</TableHead>
+                        <TableHead>Uptime</TableHead>
+                        <TableHead className="text-right">Revenue</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {monitorData.pppOversight.map((item, index) => (
+                        <TableRow key={index}>
+                        <TableCell className="font-medium">{item.metric}</TableCell>
+                        <TableCell
+                            className={`${statusColors[item.status]}`}
+                        >
+                            {item.actual}
+                        </TableCell>
+                        <TableCell className="text-right">{item.target}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                </CardContent>
+            </Card>
         </div>
       </div>
     </div>
   );
 }
+
