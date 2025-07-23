@@ -124,7 +124,7 @@ export const TwinPreviewMap = ({ parcels, highlightedParcel }: TwinPreviewMapPro
           }}
         />
       </Source>
-      
+
       {/* Highlight layer */}
       {highlightedGeoJson && (
         <Source id="highlight" type="geojson" data={highlightedGeoJson as any}>

@@ -53,49 +53,28 @@ const initialParcels: Parcel[] = [
 // Enhanced Components for Digital Twin Sandbox
 const IRRGauge = ({ value }: { value: number }) => {
     const getColor = (val: number) => {
-        if (val >= 13) return 'rgb(34 197 94)'; // emerald-500
-        if (val >= 10) return 'rgb(245 158 11)'; // amber-500
-        return 'rgb(239 68 68)'; // red-500
+        if (val >= 13) return 'hsl(142, 76%, 36%)'; // emerald-600
+        if (val >= 10) return 'hsl(45, 93%, 47%)'; // amber-500
+        return 'hsl(0, 84%, 60%)'; // red-500
     };
 
-    const maxValue = 20;
-    const normalizedValue = Math.min(Math.max(value, 0), maxValue);
-    const percentage = (normalizedValue / maxValue) * 100;
+    const data = [{ value: Math.min(value, 20), fill: getColor(value) }];
 
     return (
-        <div className="relative w-40 h-40 flex items-center justify-center">
-            {/* Circular Progress Ring */}
-            <div className="relative w-36 h-36">
-                {/* Background Ring */}
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="rgb(229 231 235)"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeLinecap="round"
-                    />
-                    {/* Progress Ring */}
-                    <motion.circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke={getColor(value)}
-                        strokeWidth="8"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeDasharray="251.2"
-                        strokeDashoffset={251.2 - (percentage / 100) * 251.2}
-                        initial={{ strokeDashoffset: 251.2 }}
-                        animate={{ strokeDashoffset: 251.2 - (percentage / 100) * 251.2 }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                    />
-                </svg>
-            </div>
-
-            {/* Center Content */}
+        <div className="relative w-40 h-40">
+            <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="60%"
+                    outerRadius="90%"
+                    data={data}
+                    startAngle={180}
+                    endAngle={0}
+                >
+                    <RadialBar dataKey="value" cornerRadius={10} fill={getColor(value)} />
+                </RadialBarChart>
+            </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <motion.span
                     className="text-3xl font-bold"
@@ -108,24 +87,6 @@ const IRRGauge = ({ value }: { value: number }) => {
                     {value.toFixed(1)}%
                 </motion.span>
                 <span className="text-xs text-muted-foreground">Target IRR</span>
-
-                {/* Performance Status */}
-                <div className="mt-2 flex items-center space-x-1">
-                    <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: getColor(value) }}
-                    />
-                    <span className="text-xs font-medium" style={{ color: getColor(value) }}>
-                        {value >= 13 ? 'Excellent' : value >= 10 ? 'Good' : 'Poor'}
-                    </span>
-                </div>
-            </div>
-
-            {/* Scale Markers */}
-            <div className="absolute bottom-2 left-0 right-0 flex justify-between px-2 text-xs text-muted-foreground">
-                <span>0</span>
-                <span>10</span>
-                <span>20</span>
             </div>
         </div>
     );
