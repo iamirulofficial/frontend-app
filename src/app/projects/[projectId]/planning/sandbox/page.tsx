@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, BarChart, XAxis, YAxis, Bar, LabelList } from 'recharts';
-import { Info, Repeat, XCircle, Users, Target, Banknote } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { Info, Repeat, XCircle, Users, Target, Banknote, Landmark, Shield, Percent, IndianRupee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -19,7 +19,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { failureDrivers } from '@/data/planning';
+import { failureDrivers, wbs, wbsRegenerated } from '@/data/planning';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
 import { cn } from '@/lib/utils';
 
@@ -56,7 +56,29 @@ const initialParcels: Parcel[] = [
     { type: 'Feature', properties: { progress: 0.64, id: 'P-1023' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
     { type: 'Feature', properties: { progress: 0.22, id: 'P-1047', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.58,12.90], [77.59,12.90], [77.59,12.91], [77.58,12.91], [77.58,12.90]] ] } },
     { type: 'Feature', properties: { progress: 0.85, id: 'P-1055' }, geometry: { type: 'Polygon', coordinates: [ [[77.62,12.91], [77.63,12.91], [77.63,12.92], [77.62,12.92], [77.62,12.91]] ] } },
+    { type: 'Feature', properties: { progress: 0.45, id: 'P-1061', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.59,12.93], [77.60,12.93], [77.60,12.94], [77.59,12.94], [77.59,12.93]] ] } },
 ];
+
+const RevenueMixBar = ({ data }: { data: { name: string; value: number, color: string }[] }) => {
+    const total = data.reduce((acc, curr) => acc + curr.value, 1); // Avoid division by zero
+    return (
+        <div className="w-full h-10 flex rounded-full overflow-hidden border">
+            {data.map(item => (
+                <Tooltip key={item.name}>
+                    <TooltipTrigger asChild>
+                         <div
+                            className="h-full transition-all duration-300"
+                            style={{ width: `${item.value}%`, backgroundColor: item.color }}
+                        />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{item.name}: {item.value.toFixed(0)}%</p>
+                    </TooltipContent>
+                </Tooltip>
+            ))}
+        </div>
+    );
+};
 
 export default function SandboxPage() {
     const router = useRouter();
@@ -133,11 +155,16 @@ export default function SandboxPage() {
     useEffect(() => {
         const newParcelData = initialParcels.map(p => {
             let progress = p.properties.progress;
-            progress -= (fee - 40) / 800; // higher fee slightly slows progress
-            if (p.properties.isBPL) {
-                progress += subsidy / 500; // subsidy accelerates progress for BPL parcels
+            // Higher fee slightly slows progress for non-BPL to simulate affordability issues
+            if (!p.properties.isBPL) {
+              progress -= (fee - 40) / 800;
             }
-            progress += (annuity - 20) / 600; // higher annuity accelerates progress
+            // Subsidy boosts progress for BPL parcels
+            if (p.properties.isBPL) {
+                progress += subsidy / 500; 
+            }
+            // Annuity payment certainty accelerates overall progress
+            progress += (annuity - 20) / 600; 
             return {
                 ...p,
                 properties: { ...p.properties, progress: Math.max(0, Math.min(1, progress)) }
@@ -183,106 +210,111 @@ export default function SandboxPage() {
             </motion.div>
         )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
-         <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+         <div className="lg:col-span-2 space-y-8">
             <Card>
                  <CardHeader>
                     <CardTitle>Digital Twin Preview</CardTitle>
                     <CardDescription>Live spatial simulation of parcel digitization progress.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="w-full h-[400px] rounded-lg shadow-inner bg-slate-100 overflow-hidden">
+                    <div className="w-full h-[550px] rounded-lg shadow-inner bg-slate-100 overflow-hidden border">
                         <TwinPreviewMap parcels={parcelData} />
                     </div>
                 </CardContent>
             </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Target className="text-primary"/>Key Project Metrics</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex justify-around items-center">
-                       <IRRDonut value={irr} />
-                       <div className="text-center">
-                            <p className={cn(
-                                "text-4xl font-bold",
-                                timelineShift > 0 ? 'text-rose-500' : 'text-emerald-500'
-                            )}>
-                               {timelineShift >= 0 ? '+' : ''}{timelineShift} wks
-                            </p>
-                            <p className="text-sm text-muted-foreground">Timeline Shift</p>
-                       </div>
-                    </CardContent>
-                 </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Users className="text-accent"/>Beneficiary Impact</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-center">
-                         <p className="text-4xl font-bold text-accent">{beneficiaryImpact.toFixed(1)} Cr</p>
-                         <p className="text-sm text-muted-foreground">Total citizens covered</p>
-                         <div className="pt-2">
-                             <p className="text-2xl font-semibold text-accent/80">{bplCoverage.toFixed(0)}%</p>
-                             <p className="text-xs text-muted-foreground">BPL household coverage</p>
-                         </div>
-                    </CardContent>
-                 </Card>
-            </div>
          </div>
         
         <div className="space-y-8">
             <Card>
                 <CardHeader>
                     <CardTitle>What-If Controls</CardTitle>
-                    <CardDescription>Adjust financial and policy levers to simulate outcomes.</CardDescription>
+                    <CardDescription>Adjust levers to simulate outcomes.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8 pt-4">
-                   <div>
-                        <label className="flex justify-between text-sm font-medium mb-1"><span>Concession Period</span><span className="font-bold">{concession} yrs</span></label>
-                        <Slider value={[concession]} min={10} max={25} step={1} onValueChange={(v) => setConcession(v[0])} />
+                <CardContent className="space-y-6 pt-4">
+                   <div className="space-y-4">
+                        <h4 className="font-semibold text-muted-foreground flex items-center text-sm"><Landmark className="mr-2 h-4 w-4"/>Financial Levers</h4>
+                        <div className="space-y-6 pl-2 border-l-2 ml-2">
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>Concession Period</span><span className="font-bold">{concession} yrs</span></label>
+                                <Slider value={[concession]} min={10} max={25} step={1} onValueChange={(v) => setConcession(v[0])} />
+                           </div>
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>Govt Annuity (% capex)</span><span className="font-bold">{annuity}%</span></label>
+                                <Slider value={[annuity]} min={0} max={40} step={2} onValueChange={(v) => setAnnuity(v[0])} />
+                           </div>
+                        </div>
                    </div>
-                   <div>
-                        <label className="flex justify-between text-sm font-medium mb-1"><span>User Fee (% of cost)</span><span className="font-bold">{fee}%</span></label>
-                        <Slider value={[fee]} min={0} max={100} step={5} onValueChange={(v) => setFee(v[0])} />
+                   <div className="space-y-4">
+                        <h4 className="font-semibold text-muted-foreground flex items-center text-sm"><Shield className="mr-2 h-4 w-4"/>Policy Levers</h4>
+                        <div className="space-y-6 pl-2 border-l-2 ml-2">
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>User Fee (% of cost)</span><span className="font-bold">{fee}%</span></label>
+                                <Slider value={[fee]} min={0} max={100} step={5} onValueChange={(v) => setFee(v[0])} />
+                           </div>
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>BPL Subsidy (% fee)</span><span className="font-bold">{subsidy}%</span></label>
+                                <Slider value={[subsidy]} min={0} max={100} step={5} onValueChange={(v) => setSubsidy(v[0])} />
+                           </div>
+                        </div>
                    </div>
-                   <div>
-                        <label className="flex justify-between text-sm font-medium mb-1"><span>Govt Annuity (% capex)</span><span className="font-bold">{annuity}%</span></label>
-                        <Slider value={[annuity]} min={0} max={40} step={2} onValueChange={(v) => setAnnuity(v[0])} />
-                   </div>
-                   <div>
-                        <label className="flex justify-between text-sm font-medium mb-1"><span>BPL Subsidy (% fee)</span><span className="font-bold">{subsidy}%</span></label>
-                        <Slider value={[subsidy]} min={0} max={100} step={5} onValueChange={(v) => setSubsidy(v[0])} />
-                   </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-4">
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2"><Target className="text-primary"/>IRR</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-4xl font-bold text-primary">{irr.toFixed(1)}%</p>
+                    </CardContent>
+                 </Card>
+                 <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Timeline</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <p className={cn(
+                                "text-4xl font-bold",
+                                timelineShift > 0 ? 'text-rose-500' : 'text-emerald-500'
+                            )}>
+                               {timelineShift >= 0 ? '+' : ''}{timelineShift} wks
+                            </p>
+                    </CardContent>
+                 </Card>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Users className="text-accent"/>Beneficiary Impact</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="text-center">
+                         <p className="text-3xl font-bold text-accent">{beneficiaryImpact.toFixed(1)} Cr</p>
+                         <p className="text-sm text-muted-foreground">Total citizens covered</p>
+                     </div>
+                     <div className="text-center">
+                         <p className="text-xl font-semibold text-accent/80">{bplCoverage.toFixed(0)}%</p>
+                         <p className="text-xs text-muted-foreground">BPL household coverage</p>
+                     </div>
                 </CardContent>
             </Card>
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Banknote className="text-primary"/>Inclusive Biz Canvas</CardTitle>
-                    <CardDescription>Live revenue mix based on your parameters.</CardDescription>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Banknote className="text-primary"/>Inclusive Biz Canvas</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[200px] -ml-4">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={revenueMix} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                            <XAxis type="number" hide />
-                            <YAxis type="category" dataKey="name" hide />
-                             <Bar dataKey="value" stackId="a" fill="hsl(var(--primary))" radius={[4, 4, 4, 4]}>
-                                <LabelList dataKey="value" position="insideRight" formatter={(v: number) => `${v}%`} className="fill-primary-foreground font-semibold"/>
-                                 {revenueMix.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                             </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
+                <CardContent>
+                    <RevenueMixBar data={revenueMix} />
                 </CardContent>
             </Card>
             
-             <div className="flex justify-end gap-4 pt-4">
-                <Button variant="outline">Save Scenario</Button>
-                <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleRunMC} disabled={isMcLoading}>
+             <div className="flex flex-col gap-4 pt-4">
+                <Button className="bg-blue-600 hover:bg-blue-700 w-full" size="lg" onClick={handleRunMC} disabled={isMcLoading}>
                     {isMcLoading ? 'Running simulations...' : 'Run Monte-Carlo Analysis'}
                 </Button>
+                <Button variant="outline" className="w-full">Save Scenario</Button>
              </div>
         </div>
       </div>
@@ -366,3 +398,4 @@ export default function SandboxPage() {
     </div>
   );
 }
+
