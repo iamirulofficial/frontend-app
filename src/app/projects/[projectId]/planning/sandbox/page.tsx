@@ -75,7 +75,7 @@ export default function SandboxPage() {
     
     // Data state
     const [parcelData, setParcelData] = useState<Parcel[]>(initialParcels);
-    const isRegenerated = searchParams.get('regenerate') === 'true';
+    const isRegenerated = searchParams.get('regenerated') === 'true';
 
     useEffect(() => {
         if(isRegenerated) {
@@ -133,11 +133,11 @@ export default function SandboxPage() {
     useEffect(() => {
         const newParcelData = initialParcels.map(p => {
             let progress = p.properties.progress;
-            progress -= (fee - 40) / 800;
+            progress -= (fee - 40) / 800; // higher fee slightly slows progress
             if (p.properties.isBPL) {
-                progress += subsidy / 500;
+                progress += subsidy / 500; // subsidy accelerates progress for BPL parcels
             }
-            progress += (annuity - 20) / 600;
+            progress += (annuity - 20) / 600; // higher annuity accelerates progress
             return {
                 ...p,
                 properties: { ...p.properties, progress: Math.max(0, Math.min(1, progress)) }
