@@ -10,7 +10,7 @@ import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/comp
 import { toast } from '@/hooks/use-toast';
 import { AiCopilot } from '@/components/ai-copilot';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
-import { Wand2, Layers, Bot, GitCommitHorizontal, Milestone, Play, Pause, ChevronRight, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader, Users, Rocket, TestTube2 } from 'lucide-react';
+import { Wand2, Layers, Bot, GitCommitHorizontal, Milestone, Play, Pause, ChevronRight, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader, Users, Rocket, TestTube2, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -360,3 +360,5 @@ export default function ExecutionPage() {
         </TooltipProvider>
     );
 }
+
+    
