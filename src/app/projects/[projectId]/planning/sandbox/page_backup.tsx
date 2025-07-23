@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -10,12 +11,12 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import {
-  ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis,
-  RadialBarChart, RadialBar, Tooltip as RechartsTooltip
+import { 
+  ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, 
+  RadialBarChart, RadialBar, Tooltip as RechartsTooltip 
 } from 'recharts';
-import {
-  Info, Repeat, XCircle, Users, Target, Banknote, Landmark, Shield,
+import { 
+  Info, Repeat, XCircle, Users, Target, Banknote, Landmark, Shield, 
   Play, Pause, RotateCcw, Layers, Settings, HelpCircle, MessageCircle,
   Zap, Activity, AlertTriangle, CheckCircle, Eye, EyeOff, Sparkles,
   ChevronDown, ChevronUp, Save, Trash2, Bot, Coffee, Wifi, Home
@@ -42,62 +43,35 @@ import { failureDrivers } from '@/data/planning';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
 import { cn } from '@/lib/utils';
 
-// Data for sandbox simulation
-const initialParcels: Parcel[] = [
-    { type: 'Feature', properties: { progress: 0.64, id: 'P-1023' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
-    { type: 'Feature', properties: { progress: 0.22, id: 'P-1047', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.58,12.90], [77.59,12.90], [77.59,12.91], [77.58,12.91], [77.58,12.90]] ] } },
-    { type: 'Feature', properties: { progress: 0.85, id: 'P-1055' }, geometry: { type: 'Polygon', coordinates: [ [[77.62,12.91], [77.63,12.91], [77.63,12.92], [77.62,12.92], [77.62,12.91]] ] } },
-    { type: 'Feature', properties: { progress: 0.45, id: 'P-1061', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.59,12.93], [77.60,12.93], [77.60,12.94], [77.59,12.94], [77.59,12.93]] ] } },
-];
 
 // Enhanced Components for Digital Twin Sandbox
+
 const IRRGauge = ({ value }: { value: number }) => {
     const getColor = (val: number) => {
-        if (val >= 13) return 'rgb(34 197 94)'; // emerald-500
-        if (val >= 10) return 'rgb(245 158 11)'; // amber-500
-        return 'rgb(239 68 68)'; // red-500
+        if (val >= 13) return 'hsl(142, 76%, 36%)'; // emerald-600
+        if (val >= 10) return 'hsl(45, 93%, 47%)'; // amber-500
+        return 'hsl(0, 84%, 60%)'; // red-500
     };
 
-    const maxValue = 20;
-    const normalizedValue = Math.min(Math.max(value, 0), maxValue);
-    const percentage = (normalizedValue / maxValue) * 100;
+    const data = [{ value: Math.min(value, 20), fill: getColor(value) }];
 
     return (
-        <div className="relative w-40 h-40 flex items-center justify-center">
-            {/* Circular Progress Ring */}
-            <div className="relative w-36 h-36">
-                {/* Background Ring */}
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="rgb(229 231 235)"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeLinecap="round"
-                    />
-                    {/* Progress Ring */}
-                    <motion.circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke={getColor(value)}
-                        strokeWidth="8"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeDasharray="251.2"
-                        strokeDashoffset={251.2 - (percentage / 100) * 251.2}
-                        initial={{ strokeDashoffset: 251.2 }}
-                        animate={{ strokeDashoffset: 251.2 - (percentage / 100) * 251.2 }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                    />
-                </svg>
-            </div>
-            
-            {/* Center Content */}
+        <div className="relative w-40 h-40">
+            <ResponsiveContainer width="100%" height="100%">
+                <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="60%"
+                    outerRadius="90%"
+                    data={data}
+                    startAngle={180}
+                    endAngle={0}
+                >
+                    <RadialBar dataKey="value" cornerRadius={10} fill={getColor(value)} />
+                </RadialBarChart>
+            </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <motion.span
+                <motion.span 
                     className="text-3xl font-bold"
                     style={{ color: getColor(value) }}
                     key={value}
@@ -108,24 +82,6 @@ const IRRGauge = ({ value }: { value: number }) => {
                     {value.toFixed(1)}%
                 </motion.span>
                 <span className="text-xs text-muted-foreground">Target IRR</span>
-                
-                {/* Performance Status */}
-                <div className="mt-2 flex items-center space-x-1">
-                    <div 
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: getColor(value) }}
-                    />
-                    <span className="text-xs font-medium" style={{ color: getColor(value) }}>
-                        {value >= 13 ? 'Excellent' : value >= 10 ? 'Good' : 'Poor'}
-                    </span>
-                </div>
-            </div>
-            
-            {/* Scale Markers */}
-            <div className="absolute bottom-2 left-0 right-0 flex justify-between px-2 text-xs text-muted-foreground">
-                <span>0</span>
-                <span>10</span>
-                <span>20</span>
             </div>
         </div>
     );
@@ -137,7 +93,7 @@ const StreamingIoTChart = () => {
 
     useEffect(() => {
         if (!isLive) return;
-
+        
         const interval = setInterval(() => {
             setData(prev => {
                 const now = Date.now();
@@ -148,7 +104,7 @@ const StreamingIoTChart = () => {
                     time: now,
                     packets: Math.max(0, basePackets + sine + noise)
                 };
-
+                
                 const updated = [...prev, newPoint].slice(-50); // Keep last 50 points
                 return updated;
             });
@@ -169,8 +125,8 @@ const StreamingIoTChart = () => {
                         transition={{ duration: 1, repeat: isLive ? Infinity : 0 }}
                     />
                 </div>
-                <Button
-                    variant="ghost"
+                <Button 
+                    variant="ghost" 
                     size="sm"
                     onClick={() => setIsLive(!isLive)}
                 >
@@ -182,10 +138,10 @@ const StreamingIoTChart = () => {
                     <LineChart data={data}>
                         <XAxis dataKey="time" hide />
                         <YAxis hide domain={[0, 100]} />
-                        <Line
-                            type="monotone"
-                            dataKey="packets"
-                            stroke="hsl(142, 76%, 36%)"
+                        <Line 
+                            type="monotone" 
+                            dataKey="packets" 
+                            stroke="hsl(142, 76%, 36%)" 
                             strokeWidth={2}
                             dot={false}
                             isAnimationActive={false}
@@ -232,10 +188,10 @@ const AnomalyFeed = () => {
     );
 };
 
-const ScenarioChip = ({ scenario, onRemove, onRunMC }: {
-    scenario: any,
-    onRemove: () => void,
-    onRunMC: () => void
+const ScenarioChip = ({ scenario, onRemove, onRunMC }: { 
+    scenario: any, 
+    onRemove: () => void, 
+    onRunMC: () => void 
 }) => (
     <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -256,10 +212,10 @@ const ScenarioChip = ({ scenario, onRemove, onRunMC }: {
 );
 
 const CopilotChat = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-    const [messages] = useState([
-        {
-            id: 1,
-            type: 'ai',
+    const [messages, setMessages] = useState([
+        { 
+            id: 1, 
+            type: 'ai', 
             content: 'I can suggest a subsidy mix to improve BPL coverage—run analysis?',
             suggestions: [
                 { label: 'Increase BPL Subsidy to 15%', action: 'subsidy-15' },
@@ -280,7 +236,7 @@ const CopilotChat = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
                         Real-time scenario optimization and insights
                     </SheetDescription>
                 </SheetHeader>
-
+                
                 <div className="space-y-4 mt-6">
                     {messages.map((message) => (
                         <motion.div
@@ -314,7 +270,7 @@ const CopilotChat = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void
 
 const InclusiveBizCanvas = () => {
     const [isExpanded, setIsExpanded] = useState(false);
-
+    
     const revenueMix = [
         { name: 'User Fees', value: 40, color: 'hsl(var(--chart-1))' },
         { name: 'API Market', value: 35, color: 'hsl(var(--chart-2))' },
@@ -335,7 +291,7 @@ const InclusiveBizCanvas = () => {
                         </div>
                     </CardHeader>
                 </CollapsibleTrigger>
-
+                
                 <CollapsibleContent>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-3 gap-4">
@@ -360,7 +316,7 @@ const InclusiveBizCanvas = () => {
                                 <div className="space-y-2">
                                     {revenueMix.map((item) => (
                                         <div key={item.name} className="flex items-center space-x-2">
-                                            <div
+                                            <div 
                                                 className="w-3 h-3 rounded-full"
                                                 style={{ backgroundColor: item.color }}
                                             />
@@ -377,6 +333,14 @@ const InclusiveBizCanvas = () => {
     );
 };
 
+// Data for sandbox simulation
+const initialParcels: Parcel[] = [
+    { type: 'Feature', properties: { progress: 0.64, id: 'P-1023' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
+    { type: 'Feature', properties: { progress: 0.22, id: 'P-1047', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.58,12.90], [77.59,12.90], [77.59,12.91], [77.58,12.91], [77.58,12.90]] ] } },
+    { type: 'Feature', properties: { progress: 0.85, id: 'P-1055' }, geometry: { type: 'Polygon', coordinates: [ [[77.62,12.91], [77.63,12.91], [77.63,12.92], [77.62,12.92], [77.62,12.91]] ] } },
+    { type: 'Feature', properties: { progress: 0.45, id: 'P-1061', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.59,12.93], [77.60,12.93], [77.60,12.94], [77.59,12.94], [77.59,12.93]] ] } },
+];
+
 export default function SandboxPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -388,18 +352,6 @@ export default function SandboxPage() {
     const [annuity, setAnnuity] = useState(20);
     const [subsidy, setSubsidy] = useState(0);
     
-    // Operational Controls
-    const [surveyTeams, setSurveyTeams] = useState(5);
-    const [droneDeployment, setDroneDeployment] = useState(30);
-    const [iotSensorDensity, setIotSensorDensity] = useState(50);
-    const [digitalLiteracy, setDigitalLiteracy] = useState(40);
-    
-    // Risk & Quality Controls
-    const [weatherRisk, setWeatherRisk] = useState(20);
-    const [qualityThreshold, setQualityThreshold] = useState(85);
-    const [communityEngagement, setCommunityEngagement] = useState(60);
-    const [techReliability, setTechReliability] = useState(90);
-
     // UI state
     const [isMcModalOpen, setIsMcModalOpen] = useState(false);
     const [isMcLoading, setIsMcLoading] = useState(false);
@@ -407,19 +359,19 @@ export default function SandboxPage() {
     const [showChoropleth, setShowChoropleth] = useState(false);
     const [selectedParcel, setSelectedParcel] = useState<Parcel | null>(null);
     const [isCopilotOpen, setIsCopilotOpen] = useState(false);
-
+    
     // Scenario management
     const [savedScenarios, setSavedScenarios] = useState<Array<any>>([
-        {
-            id: 1,
-            name: 'SC-A',
-            irr: '12.3%',
-            timeline: '-6 wks',
+        { 
+            id: 1, 
+            name: 'SC-A', 
+            irr: '12.3%', 
+            timeline: '-6 wks', 
             passRate: '82%',
             values: { concession: 15, fee: 40, annuity: 20, subsidy: 0 }
         }
     ]);
-
+    
     // Data state
     const [parcelData, setParcelData] = useState<Parcel[]>(initialParcels);
     const isRegenerated = searchParams.get('regenerated') === 'true';
@@ -435,107 +387,60 @@ export default function SandboxPage() {
     }, [isRegenerated, toast]);
 
     // Enhanced simulation logic
-    const { irr, timelineShift, beneficiaryImpact, bplCoverage, completionRate, qualityScore } = useMemo(() => {
+    const { irr, timelineShift, beneficiaryImpact, revenueMix, bplCoverage } = useMemo(() => {
         const baseIRR = isRegenerated ? 11.2 : 12;
         const baseShift = isRegenerated ? 2 : 0;
-
-        // Financial impacts
+        
         const concessionEffect = (concession - 15) * 0.1;
         const feeEffect = (fee - 40) * 0.05;
         const annuityEffect = (annuity - 20) * 0.08;
         const subsidyEffect = (subsidy) * -0.04;
-
-        // Operational impacts
-        const surveyTeamEffect = (surveyTeams - 5) * 0.3; // More teams = faster completion
-        const droneEffect = (droneDeployment - 30) * 0.02; // More drones = better efficiency
-        const iotEffect = (iotSensorDensity - 50) * 0.01; // More sensors = better monitoring
-        const literacyEffect = (digitalLiteracy - 40) * 0.05; // Higher literacy = better adoption
-
-        // Risk impacts
-        const weatherEffect = -(weatherRisk - 20) * 0.03; // Higher weather risk = slower progress
-        const qualityEffect = (qualityThreshold - 85) * 0.02; // Higher standards = slightly slower but better quality
-        const engagementEffect = (communityEngagement - 60) * 0.04; // Better engagement = faster progress
-        const reliabilityEffect = (techReliability - 90) * 0.05; // Higher reliability = better outcomes
-
-        const newIRR = baseIRR + concessionEffect + feeEffect + annuityEffect + subsidyEffect + 
-                       (surveyTeamEffect + droneEffect + literacyEffect + engagementEffect + reliabilityEffect) * 0.1;
-
-        const newTimelineShift = Math.round(baseShift + ((15 - concession) * 2) + ((40-fee)/5) - 
-                                           surveyTeamEffect - droneEffect + weatherEffect - engagementEffect/2);
-
+        
+        const newIRR = baseIRR + concessionEffect + feeEffect + annuityEffect + subsidyEffect;
+        const newTimelineShift = Math.round(baseShift + ((15 - concession) * 2) + ((40-fee)/5));
+        
         const baseBeneficiaries = 20;
         const feeImpactOnBeneficiaries = (40 - fee) * 0.1;
         const bplSubsidyImpact = subsidy * 0.05;
-        const literacyImpact = (digitalLiteracy - 40) * 0.02;
-        const engagementImpact = (communityEngagement - 60) * 0.03;
-        const newBeneficiaryImpact = baseBeneficiaries + feeImpactOnBeneficiaries + bplSubsidyImpact + 
-                                     literacyImpact + engagementImpact;
-
-        const newBplCoverage = Math.min(100, 20 + subsidy * 1.6 + (communityEngagement - 60) * 0.3);
-
-        // New metrics
-        const baseCompletion = 65;
-        const completionRate = Math.min(100, Math.max(0, baseCompletion + surveyTeamEffect * 2 + 
-                                        droneEffect * 1.5 - weatherEffect * 2 + engagementEffect));
-
-        const baseQuality = 75;
-        const qualityScore = Math.min(100, Math.max(0, baseQuality + qualityEffect * 3 + 
-                                      iotEffect + (techReliability - 90) * 0.5));
+        const newBeneficiaryImpact = baseBeneficiaries + feeImpactOnBeneficiaries + bplSubsidyImpact;
+        const newBplCoverage = Math.min(100, 20 + subsidy * 1.6);
+        
+        const userFeeShare = fee;
+        const apiShare = 35 + (concession - 15);
+        const govtShare = 100 - userFeeShare - apiShare;
+        const newRevenueMix = [
+            { name: 'User Fees', value: userFeeShare, color: 'hsl(var(--chart-1))' },
+            { name: 'API Market', value: apiShare, color: 'hsl(var(--chart-2))' },
+            { name: 'Govt Grant', value: Math.max(0, govtShare), color: 'hsl(var(--chart-4))' },
+        ];
 
         return {
             irr: newIRR,
             timelineShift: newTimelineShift,
             beneficiaryImpact: newBeneficiaryImpact,
-            bplCoverage: newBplCoverage,
-            completionRate,
-            qualityScore
+            revenueMix: newRevenueMix,
+            bplCoverage: newBplCoverage
         };
-    }, [concession, fee, annuity, subsidy, surveyTeams, droneDeployment, iotSensorDensity, 
-        digitalLiteracy, weatherRisk, qualityThreshold, communityEngagement, techReliability, isRegenerated]);
-
+    }, [concession, fee, annuity, subsidy, isRegenerated]);
+    
     // Enhanced map update logic
     useEffect(() => {
-        const newParcelData = initialParcels.map((p: Parcel) => {
+        const newParcelData = initialParcels.map(p => {
             let progress = p.properties.progress;
-            
-            // Financial impacts
             if (!p.properties.isBPL) {
               progress -= (fee - 40) / 800;
             }
             if (p.properties.isBPL) {
-                progress += subsidy / 500;
+                progress += subsidy / 500; 
             }
-            progress += (annuity - 20) / 600;
-            
-            // Operational impacts
-            progress += (surveyTeams - 5) / 100; // More survey teams = faster progress
-            progress += (droneDeployment - 30) / 400; // Drone coverage impact
-            progress += (iotSensorDensity - 50) / 500; // IoT monitoring impact
-            progress += (digitalLiteracy - 40) / 300; // Digital literacy impact
-            
-            // Risk impacts
-            progress -= (weatherRisk - 20) / 200; // Weather risk slows progress
-            progress += (communityEngagement - 60) / 250; // Community engagement helps
-            progress += (techReliability - 90) / 200; // Tech reliability impact
-            
-            // Quality threshold impact (higher standards may slow progress slightly)
-            progress -= (qualityThreshold - 85) / 1000;
-            
+            progress += (annuity - 20) / 600; 
             return {
                 ...p,
-                properties: { 
-                    ...p.properties, 
-                    progress: Math.max(0, Math.min(1, progress)),
-                    surveyCompleted: progress > 0.3,
-                    droneScanned: droneDeployment > 50 ? progress > 0.2 : progress > 0.4,
-                    iotEnabled: iotSensorDensity > 60 ? progress > 0.1 : progress > 0.5,
-                    qualityVerified: progress > 0.6 && qualityThreshold > 80
-                }
+                properties: { ...p.properties, progress: Math.max(0, Math.min(1, progress)) }
             };
         });
         setParcelData(newParcelData);
-    }, [fee, subsidy, annuity, surveyTeams, droneDeployment, iotSensorDensity, 
-        digitalLiteracy, weatherRisk, qualityThreshold, communityEngagement, techReliability]);
+    }, [fee, subsidy, annuity]);
 
     const handleSaveScenario = useCallback(() => {
         const newScenario = {
@@ -544,26 +449,20 @@ export default function SandboxPage() {
             irr: `${irr.toFixed(1)}%`,
             timeline: `${timelineShift >= 0 ? '+' : ''}${timelineShift} wks`,
             passRate: `${Math.round(Math.random() * 30 + 70)}%`,
-            values: { 
-                concession, fee, annuity, subsidy,
-                surveyTeams, droneDeployment, iotSensorDensity, digitalLiteracy,
-                weatherRisk, qualityThreshold, communityEngagement, techReliability
-            }
+            values: { concession, fee, annuity, subsidy }
         };
         setSavedScenarios(prev => [...prev, newScenario]);
         toast({
             title: '💾 Scenario Saved',
             description: `${newScenario.name} saved with current parameters`,
         });
-    }, [concession, fee, annuity, subsidy, surveyTeams, droneDeployment, iotSensorDensity, 
-        digitalLiteracy, weatherRisk, qualityThreshold, communityEngagement, techReliability,
-        irr, timelineShift, savedScenarios.length, toast]);
+    }, [concession, fee, annuity, subsidy, irr, timelineShift, savedScenarios.length, toast]);
 
     const handleRemoveScenario = useCallback((id: number) => {
         setSavedScenarios(prev => prev.filter(s => s.id !== id));
     }, []);
 
-    const handleRunMC = () => {
+    const handleRunMC = (scenarioId?: number) => {
         setIsMcLoading(true);
         setTimeout(() => {
             setIsMcLoading(false);
@@ -577,7 +476,7 @@ export default function SandboxPage() {
 
   return (
     <TooltipProvider>
-      <motion.div
+      <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-4 sm:p-6 lg:p-8"
@@ -604,8 +503,8 @@ export default function SandboxPage() {
                 <p>Interactive digital twin with real-time scenario modeling</p>
               </TooltipContent>
             </Tooltip>
-            <Button
-              variant="ghost"
+            <Button 
+              variant="ghost" 
               size="sm"
               onClick={() => setIsCopilotOpen(true)}
               className="relative"
@@ -639,13 +538,13 @@ export default function SandboxPage() {
                 Interactive spatial simulation with real-time policy impact modeling
             </p>
         </motion.div>
-
+        
         {/* Regeneration Alert */}
         {isRegenerated && (
             <motion.div
-                initial={{ y: -50, opacity: 0 }}
+                initial={{ y: -50, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }}
-                className="mb-6 bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md shadow-sm"
+                className="mb-6 bg-gradient-to-r from-blue-100 to-indigo-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md shadow-sm" 
                 role="alert"
             >
                 <div className="flex items-center">
@@ -657,7 +556,7 @@ export default function SandboxPage() {
 
         {/* Main Layout Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-
+          
           {/* 1. Digital Twin Preview - Takes up 2 columns */}
           <div className="xl:col-span-2 space-y-6">
             <Card className="border-2 border-blue-200 shadow-lg">
@@ -675,8 +574,8 @@ export default function SandboxPage() {
                         <div className="flex items-center space-x-2">
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
+                                    <Button 
+                                        variant="ghost" 
                                         size="sm"
                                         onClick={() => setIsMapAnimating(!isMapAnimating)}
                                     >
@@ -699,8 +598,8 @@ export default function SandboxPage() {
                             </Tooltip>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
+                                    <Button 
+                                        variant="ghost" 
                                         size="sm"
                                         onClick={() => setShowChoropleth(!showChoropleth)}
                                     >
@@ -716,7 +615,7 @@ export default function SandboxPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="relative w-full h-[500px] rounded-lg shadow-inner bg-gradient-to-br from-slate-100 to-blue-100 overflow-hidden border-2 border-slate-200">
-                        <TwinPreviewMap
+                        <TwinPreviewMap 
                             parcels={parcelData}
                         />
                         {selectedParcel && (
@@ -728,24 +627,8 @@ export default function SandboxPage() {
                                 <h4 className="font-semibold text-sm">Parcel: {selectedParcel.properties.id}</h4>
                                 <p className="text-xs text-muted-foreground">Progress: {Math.round(selectedParcel.properties.progress * 100)}%</p>
                                 <p className="text-xs text-muted-foreground">Next Milestone: 2025-08-15</p>
-                                
-                                <div className="mt-2 space-y-1">
-                                    {selectedParcel.properties.surveyCompleted && (
-                                        <Badge variant="secondary" className="text-xs mr-1">Survey ✓</Badge>
-                                    )}
-                                    {selectedParcel.properties.droneScanned && (
-                                        <Badge variant="secondary" className="text-xs mr-1">Drone ✓</Badge>
-                                    )}
-                                    {selectedParcel.properties.iotEnabled && (
-                                        <Badge variant="secondary" className="text-xs mr-1">IoT ✓</Badge>
-                                    )}
-                                    {selectedParcel.properties.qualityVerified && (
-                                        <Badge variant="secondary" className="text-xs mr-1">Quality ✓</Badge>
-                                    )}
-                                </div>
-                                
                                 {selectedParcel.properties.isBPL && (
-                                    <Badge variant="outline" className="mt-2 text-xs">BPL Household</Badge>
+                                    <Badge variant="secondary" className="mt-1 text-xs">BPL Household</Badge>
                                 )}
                             </motion.div>
                         )}
@@ -803,12 +686,12 @@ export default function SandboxPage() {
                                     <span>Concession Period</span>
                                     <span className="font-bold text-purple-600">{concession} yrs</span>
                                 </label>
-                                <Slider
-                                    value={[concession]}
-                                    min={10}
-                                    max={25}
-                                    step={1}
-                                    onValueChange={(v) => setConcession(v[0])}
+                                <Slider 
+                                    value={[concession]} 
+                                    min={10} 
+                                    max={25} 
+                                    step={1} 
+                                    onValueChange={(v) => setConcession(v[0])} 
                                     className="data-[orientation=horizontal]:h-2"
                                 />
                            </div>
@@ -817,12 +700,12 @@ export default function SandboxPage() {
                                     <span>Govt Annuity (% capex)</span>
                                     <span className="font-bold text-purple-600">{annuity}%</span>
                                 </label>
-                                <Slider
-                                    value={[annuity]}
-                                    min={0}
-                                    max={40}
-                                    step={2}
-                                    onValueChange={(v) => setAnnuity(v[0])}
+                                <Slider 
+                                    value={[annuity]} 
+                                    min={0} 
+                                    max={40} 
+                                    step={2} 
+                                    onValueChange={(v) => setAnnuity(v[0])} 
                                     className="data-[orientation=horizontal]:h-2"
                                 />
                            </div>
@@ -839,12 +722,12 @@ export default function SandboxPage() {
                                     <span>User Fee (% of cost)</span>
                                     <span className="font-bold text-green-600">{fee}%</span>
                                 </label>
-                                <Slider
-                                    value={[fee]}
-                                    min={0}
-                                    max={100}
-                                    step={5}
-                                    onValueChange={(v) => setFee(v[0])}
+                                <Slider 
+                                    value={[fee]} 
+                                    min={0} 
+                                    max={100} 
+                                    step={5} 
+                                    onValueChange={(v) => setFee(v[0])} 
                                     className="data-[orientation=horizontal]:h-2"
                                 />
                            </div>
@@ -853,140 +736,12 @@ export default function SandboxPage() {
                                     <span>BPL Subsidy (% fee)</span>
                                     <span className="font-bold text-green-600">{subsidy}%</span>
                                 </label>
-                                <Slider
-                                    value={[subsidy]}
-                                    min={0}
-                                    max={100}
-                                    step={5}
-                                    onValueChange={(v) => setSubsidy(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                        </div>
-                   </div>
-                   <div className="space-y-4">
-                        <h4 className="font-semibold text-muted-foreground flex items-center text-sm">
-                            <Users className="mr-2 h-4 w-4"/>
-                            Operational Levers
-                        </h4>
-                        <div className="space-y-6 pl-2 border-l-2 border-blue-200 ml-2">
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Survey Teams</span>
-                                    <span className="font-bold text-blue-600">{surveyTeams} teams</span>
-                                </label>
-                                <Slider
-                                    value={[surveyTeams]}
-                                    min={2}
-                                    max={12}
-                                    step={1}
-                                    onValueChange={(v) => setSurveyTeams(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Drone Coverage (%)</span>
-                                    <span className="font-bold text-blue-600">{droneDeployment}%</span>
-                                </label>
-                                <Slider
-                                    value={[droneDeployment]}
-                                    min={0}
-                                    max={100}
-                                    step={10}
-                                    onValueChange={(v) => setDroneDeployment(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>IoT Sensor Density (%)</span>
-                                    <span className="font-bold text-blue-600">{iotSensorDensity}%</span>
-                                </label>
-                                <Slider
-                                    value={[iotSensorDensity]}
-                                    min={20}
-                                    max={100}
-                                    step={10}
-                                    onValueChange={(v) => setIotSensorDensity(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Digital Literacy (%)</span>
-                                    <span className="font-bold text-blue-600">{digitalLiteracy}%</span>
-                                </label>
-                                <Slider
-                                    value={[digitalLiteracy]}
-                                    min={20}
-                                    max={90}
-                                    step={5}
-                                    onValueChange={(v) => setDigitalLiteracy(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                        </div>
-                   </div>
-                   <div className="space-y-4">
-                        <h4 className="font-semibold text-muted-foreground flex items-center text-sm">
-                            <AlertTriangle className="mr-2 h-4 w-4"/>
-                            Risk & Quality Levers
-                        </h4>
-                        <div className="space-y-6 pl-2 border-l-2 border-amber-200 ml-2">
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Weather Risk (%)</span>
-                                    <span className="font-bold text-amber-600">{weatherRisk}%</span>
-                                </label>
-                                <Slider
-                                    value={[weatherRisk]}
-                                    min={0}
-                                    max={60}
-                                    step={5}
-                                    onValueChange={(v) => setWeatherRisk(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Quality Threshold (%)</span>
-                                    <span className="font-bold text-amber-600">{qualityThreshold}%</span>
-                                </label>
-                                <Slider
-                                    value={[qualityThreshold]}
-                                    min={70}
-                                    max={98}
-                                    step={2}
-                                    onValueChange={(v) => setQualityThreshold(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Community Engagement (%)</span>
-                                    <span className="font-bold text-amber-600">{communityEngagement}%</span>
-                                </label>
-                                <Slider
-                                    value={[communityEngagement]}
-                                    min={30}
-                                    max={95}
-                                    step={5}
-                                    onValueChange={(v) => setCommunityEngagement(v[0])}
-                                    className="data-[orientation=horizontal]:h-2"
-                                />
-                           </div>
-                           <div>
-                                <label className="flex justify-between text-sm font-medium mb-1">
-                                    <span>Tech Reliability (%)</span>
-                                    <span className="font-bold text-amber-600">{techReliability}%</span>
-                                </label>
-                                <Slider
-                                    value={[techReliability]}
-                                    min={70}
-                                    max={99}
-                                    step={2}
-                                    onValueChange={(v) => setTechReliability(v[0])}
+                                <Slider 
+                                    value={[subsidy]} 
+                                    min={0} 
+                                    max={100} 
+                                    step={5} 
+                                    onValueChange={(v) => setSubsidy(v[0])} 
                                     className="data-[orientation=horizontal]:h-2"
                                 />
                            </div>
@@ -1011,7 +766,7 @@ export default function SandboxPage() {
                         <IRRGauge value={irr} />
                     </CardContent>
                 </Card>
-
+                
                 <Card className="border-2 border-amber-200">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center gap-2">
@@ -1020,7 +775,7 @@ export default function SandboxPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="text-center">
-                        <motion.p
+                        <motion.p 
                             className={cn(
                                 "text-4xl font-bold",
                                 timelineShift > 0 ? 'text-rose-500' : timelineShift < 0 ? 'text-emerald-500' : 'text-slate-500'
@@ -1047,7 +802,7 @@ export default function SandboxPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <div className="text-center">
-                         <motion.p
+                         <motion.p 
                             className="text-3xl font-bold text-blue-600"
                             key={beneficiaryImpact}
                             initial={{ scale: 0.8 }}
@@ -1059,7 +814,7 @@ export default function SandboxPage() {
                      </div>
                      <Separator />
                      <div className="text-center">
-                         <motion.p
+                         <motion.p 
                             className="text-xl font-semibold text-blue-500"
                             key={bplCoverage}
                             initial={{ scale: 0.8 }}
@@ -1069,67 +824,6 @@ export default function SandboxPage() {
                          </motion.p>
                          <p className="text-xs text-muted-foreground">BPL household coverage</p>
                          <Progress value={bplCoverage} className="mt-2 h-2" />
-                     </div>
-                </CardContent>
-            </Card>
-
-            {/* 5. Operational Metrics */}
-            <Card className="border-2 border-indigo-200">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Activity className="text-indigo-600"/>
-                        Operational Metrics
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                     <div className="grid grid-cols-2 gap-4">
-                         <div className="text-center">
-                             <motion.p
-                                className="text-2xl font-bold text-indigo-600"
-                                key={completionRate}
-                                initial={{ scale: 0.8 }}
-                                animate={{ scale: 1 }}
-                             >
-                                {completionRate.toFixed(0)}%
-                             </motion.p>
-                             <p className="text-xs text-muted-foreground">Completion Rate</p>
-                             <Progress value={completionRate} className="mt-1 h-2" />
-                         </div>
-                         <div className="text-center">
-                             <motion.p
-                                className="text-2xl font-bold text-indigo-600"
-                                key={qualityScore}
-                                initial={{ scale: 0.8 }}
-                                animate={{ scale: 1 }}
-                             >
-                                {qualityScore.toFixed(0)}%
-                             </motion.p>
-                             <p className="text-xs text-muted-foreground">Quality Score</p>
-                             <Progress value={qualityScore} className="mt-1 h-2" />
-                         </div>
-                     </div>
-                     <Separator />
-                     <div className="grid grid-cols-2 gap-4 text-xs">
-                         <div className="space-y-1">
-                             <div className="flex justify-between">
-                                 <span>Survey Teams:</span>
-                                 <span className="font-medium">{surveyTeams}</span>
-                             </div>
-                             <div className="flex justify-between">
-                                 <span>Drone Coverage:</span>
-                                 <span className="font-medium">{droneDeployment}%</span>
-                             </div>
-                         </div>
-                         <div className="space-y-1">
-                             <div className="flex justify-between">
-                                 <span>IoT Density:</span>
-                                 <span className="font-medium">{iotSensorDensity}%</span>
-                             </div>
-                             <div className="flex justify-between">
-                                 <span>Digital Literacy:</span>
-                                 <span className="font-medium">{digitalLiteracy}%</span>
-                             </div>
-                         </div>
                      </div>
                 </CardContent>
             </Card>
@@ -1161,16 +855,16 @@ export default function SandboxPage() {
                                 key={scenario.id}
                                 scenario={scenario}
                                 onRemove={() => handleRemoveScenario(scenario.id)}
-                                onRunMC={() => handleRunMC()}
+                                onRunMC={() => handleRunMC(scenario.id)}
                             />
                         ))}
                     </AnimatePresence>
                 </div>
                 <div className="flex gap-4 mt-6">
-                    <Button
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex-1"
-                        size="lg"
-                        onClick={() => handleRunMC()}
+                    <Button 
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 flex-1" 
+                        size="lg" 
+                        onClick={() => handleRunMC()} 
                         disabled={isMcLoading}
                     >
                         {isMcLoading ? (
@@ -1199,7 +893,7 @@ export default function SandboxPage() {
         <div className="mt-8">
             <InclusiveBizCanvas />
         </div>
-
+      
         {/* Navigation */}
         <div className="flex justify-between mt-12 pt-8 border-t">
             <Button variant="outline" asChild>
@@ -1233,18 +927,18 @@ export default function SandboxPage() {
                                 <div className="flex flex-col items-center justify-center">
                                      <ResponsiveContainer width="100%" height={150}>
                                         <PieChart>
-                                            <Pie
+                                            <Pie 
                                                 data={[
                                                     { name: 'Pass', value: 35, fill: 'hsl(var(--accent))' },
                                                     { name: 'Fail', value: 65, fill: 'hsl(var(--destructive))' },
-                                                ]}
-                                                dataKey="value"
-                                                nameKey="name"
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={40}
-                                                outerRadius={60}
-                                                startAngle={90}
+                                                ]} 
+                                                dataKey="value" 
+                                                nameKey="name" 
+                                                cx="50%" 
+                                                cy="50%" 
+                                                innerRadius={40} 
+                                                outerRadius={60} 
+                                                startAngle={90} 
                                                 endAngle={450}
                                             >
                                                 <Cell fill="hsl(var(--destructive))" />
@@ -1261,7 +955,7 @@ export default function SandboxPage() {
                                     <h3 className="font-semibold">Top 3 Reasons for Failure:</h3>
                                     <ul className="list-decimal list-inside text-sm text-muted-foreground space-y-1">
                                     {failureDrivers.map((driver, index) => (
-                                        <motion.li
+                                        <motion.li 
                                             key={index}
                                             initial={{ opacity: 0, x: 10 }}
                                             animate={{ opacity: 1, x: 0 }}
@@ -1309,11 +1003,11 @@ export default function SandboxPage() {
                         onClick={() => setIsCopilotOpen(true)}
                     >
                         <motion.div
-                            animate={{
+                            animate={{ 
                                 scale: [1, 1.1, 1],
-                                rotate: [0, 5, -5, 0]
+                                rotate: [0, 5, -5, 0] 
                             }}
-                            transition={{
+                            transition={{ 
                                 duration: 3,
                                 repeat: Infinity,
                                 repeatDelay: 2
@@ -1329,6 +1023,326 @@ export default function SandboxPage() {
             </Tooltip>
         </motion.div>
       </motion.div>
+    </TooltipProvider>
+  );
+}
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { toast } = useToast();
+
+    // Sliders state
+    const [concession, setConcession] = useState(15);
+    const [fee, setFee] = useState(40);
+    const [annuity, setAnnuity] = useState(20);
+    const [subsidy, setSubsidy] = useState(0);
+    
+    // UI state
+    const [isMcModalOpen, setIsMcModalOpen] = useState(false);
+    const [isMcLoading, setIsMcLoading] = useState(false);
+    
+    // Data state
+    const [parcelData, setParcelData] = useState<Parcel[]>(initialParcels);
+    const isRegenerated = searchParams.get('regenerated') === 'true';
+
+    useEffect(() => {
+        if(isRegenerated) {
+            toast({
+                title: 'WBS Re-drafted',
+                description: 'Your WBS has been re-drafted to address top failure drivers.',
+            });
+        }
+    }, [isRegenerated, toast]);
+
+
+    // --- Core Simulation Logic ---
+    const { irr, timelineShift, beneficiaryImpact, revenueMix, bplCoverage } = useMemo(() => {
+        // Base values
+        const baseIRR = isRegenerated ? 11.2 : 12;
+        const baseShift = isRegenerated ? 2 : 0;
+        
+        // Effects from sliders
+        const concessionEffect = (concession - 15) * 0.1;
+        const feeEffect = (fee - 40) * 0.05;
+        const annuityEffect = (annuity - 20) * 0.08;
+        const subsidyEffect = (subsidy) * -0.04;
+        
+        // Calculated Metrics
+        const newIRR = baseIRR + concessionEffect + feeEffect + annuityEffect + subsidyEffect;
+        const newTimelineShift = Math.round(baseShift + ((15 - concession) * 2) + ((40-fee)/5));
+        
+        // Beneficiary Impact Model
+        const baseBeneficiaries = 20; // in crore
+        const feeImpactOnBeneficiaries = (40 - fee) * 0.1; // Higher fee slightly reduces reach
+        const bplSubsidyImpact = subsidy * 0.05; // Subsidy increases reach
+        const newBeneficiaryImpact = baseBeneficiaries + feeImpactOnBeneficiaries + bplSubsidyImpact;
+        const newBplCoverage = Math.min(100, 20 + subsidy * 1.6); // % of BPL families covered
+        
+        // Revenue Mix Model
+        const userFeeShare = fee;
+        const apiShare = 35 + (concession - 15); // Longer concession encourages more API partners
+        const govtShare = 100 - userFeeShare - apiShare;
+        const newRevenueMix = [
+            { name: 'User Fees', value: userFeeShare, color: 'hsl(var(--chart-1))' },
+            { name: 'API Market', value: apiShare, color: 'hsl(var(--chart-2))' },
+            { name: 'Govt. Grant', value: Math.max(0, govtShare), color: 'hsl(var(--chart-4))' },
+        ];
+
+        return {
+            irr: newIRR,
+            timelineShift: newTimelineShift,
+            beneficiaryImpact: newBeneficiaryImpact,
+            revenueMix: newRevenueMix,
+            bplCoverage: newBplCoverage
+        };
+    }, [concession, fee, annuity, subsidy, isRegenerated]);
+    
+    // --- Map Update Logic ---
+    useEffect(() => {
+        const newParcelData = initialParcels.map(p => {
+            let progress = p.properties.progress;
+            // Higher fee slightly slows progress for non-BPL to simulate affordability issues
+            if (!p.properties.isBPL) {
+              progress -= (fee - 40) / 800;
+            }
+            // Subsidy boosts progress for BPL parcels
+            if (p.properties.isBPL) {
+                progress += subsidy / 500; 
+            }
+            // Annuity payment certainty accelerates overall progress
+            progress += (annuity - 20) / 600; 
+            return {
+                ...p,
+                properties: { ...p.properties, progress: Math.max(0, Math.min(1, progress)) }
+            };
+        });
+        setParcelData(newParcelData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fee, subsidy, annuity]);
+
+
+    const handleRunMC = () => {
+        setIsMcLoading(true);
+        setTimeout(() => {
+            setIsMcLoading(false);
+            setIsMcModalOpen(true);
+        }, 2000);
+    }
+    
+    const handleRegenerate = () => {
+        router.push('/projects/bhu-setu-2/planning/wbs?regenerate=true');
+    }
+
+  return (
+    <TooltipProvider>
+    <div className="p-4 sm:p-6 lg:p-8">
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+        >
+            <h1 className="text-4xl font-bold font-headline tracking-tight text-slate-800">
+                ✏️ Digital-Twin Sandbox + What-If Lab
+            </h1>
+        </motion.div>
+        
+        {isRegenerated && (
+            <motion.div
+                initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                className="mb-6 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md" role="alert"
+            >
+                <div className="flex items-center">
+                    <Info className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0"/>
+                    <p className="text-sm">Your WBS has been re-tuned based on failure drivers. Try Monte-Carlo again.</p>
+                </div>
+            </motion.div>
+        )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+         <div className="lg:col-span-2 space-y-8">
+            <Card>
+                 <CardHeader>
+                    <CardTitle>Digital Twin Preview</CardTitle>
+                    <CardDescription>Live spatial simulation of parcel digitization progress.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="w-full h-[550px] rounded-lg shadow-inner bg-slate-100 overflow-hidden border">
+                        <TwinPreviewMap parcels={parcelData} />
+                    </div>
+                </CardContent>
+            </Card>
+         </div>
+        
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>What-If Controls</CardTitle>
+                    <CardDescription>Adjust levers to simulate outcomes.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-4">
+                   <div className="space-y-4">
+                        <h4 className="font-semibold text-muted-foreground flex items-center text-sm"><Landmark className="mr-2 h-4 w-4"/>Financial Levers</h4>
+                        <div className="space-y-6 pl-2 border-l-2 ml-2">
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>Concession Period</span><span className="font-bold">{concession} yrs</span></label>
+                                <Slider value={[concession]} min={10} max={25} step={1} onValueChange={(v) => setConcession(v[0])} />
+                           </div>
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>Govt Annuity (% capex)</span><span className="font-bold">{annuity}%</span></label>
+                                <Slider value={[annuity]} min={0} max={40} step={2} onValueChange={(v) => setAnnuity(v[0])} />
+                           </div>
+                        </div>
+                   </div>
+                   <div className="space-y-4">
+                        <h4 className="font-semibold text-muted-foreground flex items-center text-sm"><Shield className="mr-2 h-4 w-4"/>Policy Levers</h4>
+                        <div className="space-y-6 pl-2 border-l-2 ml-2">
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>User Fee (% of cost)</span><span className="font-bold">{fee}%</span></label>
+                                <Slider value={[fee]} min={0} max={100} step={5} onValueChange={(v) => setFee(v[0])} />
+                           </div>
+                           <div>
+                                <label className="flex justify-between text-sm font-medium mb-1"><span>BPL Subsidy (% fee)</span><span className="font-bold">{subsidy}%</span></label>
+                                <Slider value={[subsidy]} min={0} max={100} step={5} onValueChange={(v) => setSubsidy(v[0])} />
+                           </div>
+                        </div>
+                   </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-2 gap-4">
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2"><Target className="text-primary"/>IRR</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-4xl font-bold text-primary">{irr.toFixed(1)}%</p>
+                    </CardContent>
+                 </Card>
+                 <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Timeline</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <p className={cn(
+                                "text-4xl font-bold",
+                                timelineShift > 0 ? 'text-rose-500' : 'text-emerald-500'
+                            )}>
+                               {timelineShift >= 0 ? '+' : ''}{timelineShift} wks
+                            </p>
+                    </CardContent>
+                 </Card>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Users className="text-accent"/>Beneficiary Impact</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="text-center">
+                         <p className="text-3xl font-bold text-accent">{beneficiaryImpact.toFixed(1)} Cr</p>
+                         <p className="text-sm text-muted-foreground">Total citizens covered</p>
+                     </div>
+                     <div className="text-center">
+                         <p className="text-xl font-semibold text-accent/80">{bplCoverage.toFixed(0)}%</p>
+                         <p className="text-xs text-muted-foreground">BPL household coverage</p>
+                     </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg"><Banknote className="text-primary"/>Inclusive Biz Canvas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <RevenueMixBar data={revenueMix} />
+                </CardContent>
+            </Card>
+            
+             <div className="flex flex-col gap-4 pt-4">
+                <Button className="bg-blue-600 hover:bg-blue-700 w-full" size="lg" onClick={handleRunMC} disabled={isMcLoading}>
+                    {isMcLoading ? 'Running simulations...' : 'Run Monte-Carlo Analysis'}
+                </Button>
+                <Button variant="outline" className="w-full">Save Scenario</Button>
+             </div>
+        </div>
+      </div>
+      
+       <div className="flex justify-between mt-12">
+        <Button variant="outline" asChild>
+          <Link href="/projects/bhu-setu-2/planning/wbs">
+            Back: WBS
+          </Link>
+        </Button>
+        <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700" asChild>
+          <Link href={`/projects/bhu-setu-2/planning/finish?regenerated=${isRegenerated}`}>
+            Next: Finalize Plan
+          </Link>
+        </Button>
+      </div>
+
+        <AnimatePresence>
+            {isMcModalOpen && (
+                 <Dialog open={isMcModalOpen} onOpenChange={setIsMcModalOpen}>
+                    <DialogContent className="sm:max-w-lg bg-white">
+                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                            <DialogHeader>
+                                <DialogTitle className="text-rose-500 text-2xl flex items-center">
+                                    <XCircle className="mr-2 h-7 w-7"/> Monte-Carlo Results
+                                </DialogTitle>
+                                <DialogDescription>
+                                    1500 simulations completed. Looks like this scenario doesn’t clear our KPIs.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="grid grid-cols-2 gap-4 my-6">
+                                <div className="flex flex-col items-center justify-center">
+                                     <ResponsiveContainer width="100%" height={150}>
+                                        <PieChart>
+                                            <Pie data={failureDonutData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={60} startAngle={90} endAngle={450}>
+                                                {failureDonutData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                     <div className="text-center">
+                                        <p className="text-3xl font-bold text-rose-500">65% Failed</p>
+                                        <p className="text-sm text-muted-foreground">35% Pass Rate</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="font-semibold">Top 3 Reasons for Failure:</h3>
+                                    <ul className="list-decimal list-inside text-sm text-muted-foreground space-y-1">
+                                    {failureDrivers.map((driver, index) => (
+                                        <motion.li 
+                                            key={index}
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 + index * 0.1 }}
+                                        >
+                                            {driver.reason}
+                                        </motion.li>
+                                    ))}
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsMcModalOpen(false)}>Try Different Sliders</Button>
+                                <motion.div
+                                    animate={{ x: [0, -3, 3, -3, 3, 0] }}
+                                    transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
+                                >
+                                    <Button className="bg-rose-500 hover:bg-rose-600" onClick={handleRegenerate}>
+                                        <Repeat className="mr-2 h-4 w-4"/> Regenerate WBS
+                                    </Button>
+                                </motion.div>
+                            </DialogFooter>
+                         </motion.div>
+                    </DialogContent>
+                 </Dialog>
+            )}
+        </AnimatePresence>
+    </div>
     </TooltipProvider>
   );
 }

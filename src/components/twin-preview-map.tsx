@@ -8,6 +8,10 @@ export type ParcelProperties = {
   progress: number;
   id: string;
   isBPL?: boolean;
+  surveyCompleted?: boolean;
+  droneScanned?: boolean;
+  iotEnabled?: boolean;
+  qualityVerified?: boolean;
 };
 
 export type Parcel = {
