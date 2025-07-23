@@ -74,7 +74,7 @@ export default function VerificationPage() {
                                 >
                                     <Card className="flex flex-col sm:flex-row items-start gap-4 p-4 hover:shadow-lg transition-shadow">
                                         <div className="relative w-full sm:w-40 h-32 flex-shrink-0">
-                                            <Image src={item.imageUrl} alt={`Citizen upload from ${item.location}`} fill className="object-cover rounded-md" data-ai-hint="citizen proof"/>
+                                            <Image src={item.imageUrl} alt={`Citizen upload from ${item.location}`} fill className="object-cover rounded-md" data-ai-hint="land survey proof"/>
                                         </div>
                                         <div className="flex-grow">
                                             <div className="flex justify-between items-start">

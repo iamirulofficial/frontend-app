@@ -17,6 +17,16 @@ const statusVariantMap: Record<Project['status'], 'default' | 'secondary' | 'des
 };
 
 export function ProjectCard({ project }: ProjectCardProps) {
+  const getHint = (sector: string) => {
+      switch(sector) {
+          case 'Land & Urban': return 'land urban';
+          case 'Health': return 'health telemedicine';
+          case 'Transport': return 'transport logistics';
+          case 'Water': return 'water project';
+          default: return 'governance project';
+      }
+  }
+
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader>
@@ -26,7 +36,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             alt={project.name}
             fill
             className="object-cover rounded-t-lg"
-            data-ai-hint="project governance"
+            data-ai-hint={getHint(project.sector)}
             />
         </div>
         <div className="flex justify-between items-start">

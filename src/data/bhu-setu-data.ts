@@ -43,12 +43,12 @@ export const bhuSetuData: BhuSetuData = {
       { id: '#CAR-019', description: 'Pending approval for boundary change based on drone resurvey.', status: 'open' },
     ],
     citizenWall: [
-        { id: '1', imageUrl: 'https://placehold.co/300x400.png', location: 'Bhagalpur', isMismatch: false },
-        { id: '2', imageUrl: 'https://placehold.co/400x300.png', location: 'Dindori', isMismatch: true },
-        { id: '3', imageUrl: 'https://placehold.co/300x300.png', location: 'Jaipur', isMismatch: false },
-        { id: '4', imageUrl: 'https://placehold.co/400x400.png', location: 'Pune', isMismatch: false },
-        { id: '5', imageUrl: 'https://placehold.co/300x450.png', location: 'Bhagalpur', isMismatch: false },
-        { id: '6', imageUrl: 'https://placehold.co/450x300.png', location: 'Dindori', isMismatch: false },
+        { id: '1', imageUrl: 'https://images.unsplash.com/photo-1588803103458-46c4d5ba1378?q=80&w=600', location: 'Bhagalpur', isMismatch: false },
+        { id: '2', imageUrl: 'https://images.unsplash.com/photo-1544383826-348a4b6df342?q=80&w=600', location: 'Dindori', isMismatch: true },
+        { id: '3', imageUrl: 'https://images.unsplash.com/photo-1621929744747-83a37b7e8c3c?q=80&w=600', location: 'Jaipur', isMismatch: false },
+        { id: '4', imageUrl: 'https://images.unsplash.com/photo-1599921404175-195c64506f20?q=80&w=600', location: 'Pune', isMismatch: false },
+        { id: '5', imageUrl: 'https://images.unsplash.com/photo-1526640523293-c9d343a3d24c?q=80&w=600', location: 'Bhagalpur', isMismatch: false },
+        { id: '6', imageUrl: 'https://images.unsplash.com/photo-1617244389146-248c89451a24?q=80&w=600', location: 'Dindori', isMismatch: false },
     ],
     qualityScorecard: {
       averageScore: 92,
