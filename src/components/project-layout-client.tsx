@@ -23,6 +23,9 @@ export function ProjectLayoutClient({
   }
 
   const isPlanningPage = pathname.includes('/planning');
+  
+  // Note: The main AiCopilot for the execution page is now managed within that page itself.
+  // This one remains for other project pages that might use the sidebar button.
 
   return (
     <div className="flex min-h-screen">

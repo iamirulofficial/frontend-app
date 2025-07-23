@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bot, Loader2, Lightbulb, ShieldAlert } from 'lucide-react';
+import { Bot, Loader2, Lightbulb, ShieldAlert, BookOpen } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
@@ -16,57 +16,94 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { getProjectCopilotSummary, type ProjectCopilotSummaryOutput } from '@/ai/flows/project-copilot-summary';
+import { getTaskExplanation, type TaskExplanationOutput } from '@/ai/flows/explain-task';
 import { projects, bhuSetuData } from '@/data';
+
+type CopilotContext = 
+  | { type: 'phase'; }
+  | { type: 'task'; details: string | null };
 
 interface AiCopilotProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  context?: CopilotContext;
 }
 
-export function AiCopilot({ open, onOpenChange }: AiCopilotProps) {
+export function AiCopilot({ open, onOpenChange, context = { type: 'phase' } }: AiCopilotProps) {
   const pathname = usePathname();
   const [summary, setSummary] = useState<ProjectCopilotSummaryOutput | null>(null);
+  const [explanation, setExplanation] = useState<TaskExplanationOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { project, phase } = useMemo(() => {
     const pathParts = pathname.split('/').filter(Boolean);
     if (pathParts.length >= 3 && pathParts[0] === 'projects') {
-      const project = projects.find((p) => p.id === pathParts[1]);
-      return { project, phase: pathParts[2] };
+      const proj = projects.find((p) => p.id === pathParts[1]);
+      return { project: proj, phase: pathParts[2] };
     }
     return { project: null, phase: null };
   }, [pathname]);
 
   useEffect(() => {
-    if (open && project && phase) {
-      const fetchSummary = async () => {
-        setIsLoading(true);
-        setError(null);
-        setSummary(null);
+    if (open && project) {
+      setIsLoading(true);
+      setError(null);
+      setSummary(null);
+      setExplanation(null);
 
-        try {
-          // This uses mock data. A real implementation would fetch phase-specific data.
-          const phaseData = JSON.stringify(bhuSetuData[phase as keyof typeof bhuSetuData] || bhuSetuData, null, 2);
-
-          const result = await getProjectCopilotSummary({
-            projectName: project.name,
-            phaseData: phaseData,
-          });
-          setSummary(result);
-        } catch (e) {
-          setError('Failed to get insights. Please try again.');
-          console.error(e);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchSummary();
+      if (context.type === 'task' && context.details) {
+        const fetchExplanation = async () => {
+          try {
+            const result = await getTaskExplanation({
+              taskName: context.details!,
+              projectName: project.name
+            });
+            setExplanation(result);
+          } catch (e) {
+            setError('Failed to get explanation. Please try again.');
+            console.error(e);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        fetchExplanation();
+      } else if (context.type === 'phase' && phase) {
+        const fetchSummary = async () => {
+          try {
+            const phaseData = JSON.stringify(bhuSetuData[phase as keyof typeof bhuSetuData] || bhuSetuData, null, 2);
+            const result = await getProjectCopilotSummary({
+              projectName: project.name,
+              phaseData: phaseData,
+            });
+            setSummary(result);
+          } catch (e) {
+            setError('Failed to get insights. Please try again.');
+            console.error(e);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        fetchSummary();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [open, project, phase]);
+  }, [open, project, phase, context]);
+
+  const getTitle = () => {
+    if (context.type === 'task') return "Task Explainer";
+    return "Project Copilot";
+  }
+  
+  const getDescription = () => {
+    if (context.type === 'task' && context.details) {
+        return `AI-powered explanation for task: "${context.details}"`;
+    }
+    return `AI-powered insights for ${project?.name} - ${phase} phase.`;
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -74,10 +111,10 @@ export function AiCopilot({ open, onOpenChange }: AiCopilotProps) {
         <SheetHeader className="p-6">
           <SheetTitle className="flex items-center text-2xl font-headline">
             <Bot className="mr-3 h-8 w-8 text-primary" />
-            Project Copilot
+            {getTitle()}
           </SheetTitle>
           <SheetDescription>
-            AI-powered insights for {project?.name} - {phase} phase.
+            {getDescription()}
           </SheetDescription>
         </SheetHeader>
         <Separator />
@@ -85,7 +122,7 @@ export function AiCopilot({ open, onOpenChange }: AiCopilotProps) {
           {isLoading && (
             <div className="flex items-center justify-center h-full">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="ml-4 text-muted-foreground">Analyzing project data...</p>
+              <p className="ml-4 text-muted-foreground">Analyzing...</p>
             </div>
           )}
           {error && (
@@ -93,7 +130,7 @@ export function AiCopilot({ open, onOpenChange }: AiCopilotProps) {
                <p>{error}</p>
             </div>
           )}
-          {summary && (
+          {summary && context.type === 'phase' && (
              <div className="space-y-6">
               <Card className="bg-primary/5 border-primary/20">
                 <CardHeader>
@@ -118,6 +155,27 @@ export function AiCopilot({ open, onOpenChange }: AiCopilotProps) {
                       </div>
                     </div>
                   ))}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+           {explanation && context.type === 'task' && (
+             <div className="space-y-6">
+              <Card className="bg-blue-50 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="text-lg text-blue-800 flex items-center"><BookOpen className="mr-3"/> Simplified Explanation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 prose prose-sm max-w-none">
+                  <p>{explanation.analogy}</p>
+                  <Separator />
+                  <h4 className="font-semibold">Key Objectives:</h4>
+                  <ul>
+                    {explanation.objectives.map((obj, i) => <li key={i}>{obj}</li>)}
+                  </ul>
+                  <h4 className="font-semibold">Potential Challenges:</h4>
+                  <ul>
+                    {explanation.challenges.map((cha, i) => <li key={i}>{cha}</li>)}
+                  </ul>
                 </CardContent>
               </Card>
             </div>
