@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,32 +6,55 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/hooks/use-toast';
 import { AiCopilot } from '@/components/ai-copilot';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
-import { Wand2, Layers, Bot, GitCommitHorizontal, Milestone, Play, Pause, ChevronRight } from 'lucide-react';
+import { Wand2, Layers, Bot, GitCommitHorizontal, Milestone, Play, Pause, ChevronRight, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 const initialTasks = [
   { id: 'T1', name: 'Deploy IoT Beacons', duration: 12, owner: 'Ops Team', status: 'In-Progress', progress: 30 },
-  { id: 'T2', name: 'Launch Citizen Portal', duration: 10, owner: 'Dev Squad', status: 'Pending', progress: 0 },
-  { id: 'T3', name: 'Notary-DAO Integration', duration: 8, owner: 'Legal Ops', status: 'Pending', progress: 0 },
-  { id: 'T4', name: 'Bulk Data Migration', duration: 15, owner: 'Data Cell', status: 'Pending', progress: 0 },
+  { id: 'T2', name: 'Launch Citizen Portal', duration: 10, owner: 'Dev Squad', status: 'In-Progress', progress: 60 },
+  { id: 'T3', name: 'Notary-DAO Integration', duration: 8, owner: 'Legal Ops', status: 'Blocked', progress: 10 },
+  { id: 'T4', name: 'Bulk Data Migration', duration: 15, owner: 'Data Cell', status: 'At-Risk', progress: 25 },
+  { id: 'T5', name: 'Setup Geo-Fence Alerts', duration: 5, owner: 'Ops Team', status: 'Pending', progress: 0 },
+  { id: 'T6', name: 'Finalize PPP Contracts', duration: 9, owner: 'Legal Ops', status: 'Done', progress: 100 },
+  { id: 'T7', name: 'Develop Analytics Dashboard', duration: 11, owner: 'Dev Squad', status: 'In-Progress', progress: 45 },
+  { id: 'T8', name: 'Train Field Surveyors', duration: 7, owner: 'HR Team', status: 'Done', progress: 100 },
+  { id: 'T9', name: 'API Marketplace UAT', duration: 6, owner: 'QA Team', status: 'Pending', progress: 0 },
+  { id: 'T10', name: 'Integrate with State Treasury', duration: 14, owner: 'Dev Squad', status: 'Blocked', progress: 30 },
+  { id: 'T11', name: 'Conduct Security Audit', duration: 10, owner: 'InfoSec', status: 'At-Risk', progress: 50 },
+  { id: 'T12', name: 'Scale OCR Infrastructure', duration: 8, owner: 'Data Cell', status: 'In-Progress', progress: 80 },
+  { id: 'T13', name: 'Draft Citizen Communication', duration: 4, owner: 'Comm Team', status: 'Done', progress: 100 },
+  { id: 'T14', name: 'Setup Grievance Redressal', duration: 7, owner: 'Support', status: 'Pending', progress: 0 },
+  { id: 'T15', name: 'Onboard NGO Partners', duration: 9, owner: 'Outreach', status: 'In-Progress', progress: 65 },
+  { id: 'T16', name: 'Procure Drone Fleet', duration: 18, owner: 'Ops Team', status: 'At-Risk', progress: 40 },
+  { id: 'T17', name: 'User Authentication Module', duration: 10, owner: 'Dev Squad', status: 'Done', progress: 100 },
+  { id: 'T18', name: 'Real-time Data Pipeline', duration: 13, owner: 'Data Cell', status: 'In-Progress', progress: 55 },
+  { id: 'T19', name: 'Mobile Van Outfitting', duration: 10, owner: 'Ops Team', status: 'Pending', progress: 0 },
+  { id: 'T20', name: 'Finalize Data Policy', duration: 6, owner: 'Legal Ops', status: 'Blocked', progress: 20 },
 ];
+
 
 const optimizedSubtasks = [
     { id: 'S1-1', parentId: 'T1', name: 'Procure sensors', duration: 6, owner: 'Ops Team', status: 'Done', progress: 100 },
     { id: 'S1-2', parentId: 'T1', name: 'Install sensors', duration: 6, owner: 'Ops Team', status: 'In-Progress', progress: 50 },
-    { id: 'S2-1', parentId: 'T2', name: 'Frontend UI/UX', duration: 5, owner: 'Dev Squad', status: 'Pending', progress: 0 },
-    { id: 'S2-2', parentId: 'T2', name: 'Backend API', duration: 5, owner: 'Dev Squad', status: 'Pending', progress: 0 },
-    { id: 'S3-1', parentId: 'T3', name: 'Legal-Spec drafting', duration: 4, owner: 'Legal Ops', status: 'Pending', progress: 0 },
+    { id: 'S2-1', parentId: 'T2', name: 'Frontend UI/UX', duration: 5, owner: 'Dev Squad', status: 'In-Progress', progress: 70 },
+    { id: 'S2-2', parentId: 'T2', name: 'Backend API', duration: 5, owner: 'Dev Squad', status: 'In-Progress', progress: 50 },
+    { id: 'S3-1', parentId: 'T3', name: 'Legal-Spec drafting', duration: 4, owner: 'Legal Ops', status: 'Blocked', progress: 20 },
     { id: 'S3-2', parentId: 'T3', name: 'Smart-contract coding', duration: 4, owner: 'Dev Squad', status: 'Pending', progress: 0 },
-    { id: 'S4-1', parentId: 'T4', name: 'Export 32Cr pages', duration: 8, owner: 'Data Cell', status: 'Pending', progress: 0 },
+    { id: 'S4-1', parentId: 'T4', name: 'Export 32Cr pages', duration: 8, owner: 'Data Cell', status: 'At-Risk', progress: 40 },
     { id: 'S4-2', parentId: 'T4', name: 'Run OCR & cleaning', duration: 7, owner: 'Data Cell', status: 'Pending', progress: 0 },
+    // Add more optimized tasks to simulate a full breakdown
+    { id: 'S7-1', parentId: 'T7', name: 'Data model design', duration: 4, owner: 'Dev Squad', status: 'Done', progress: 100 },
+    { id: 'S7-2', parentId: 'T7', name: 'Chart component dev', duration: 7, owner: 'Dev Squad', status: 'In-Progress', progress: 20 },
+    { id: 'S10-1', parentId: 'T10', name: 'Resolve API spec conflict', duration: 7, owner: 'Dev Squad', status: 'Blocked', progress: 0 },
+    { id: 'S10-2', parentId: 'T10', name: 'Implement payment gateway', duration: 7, owner: 'Dev Squad', status: 'Pending', progress: 0 },
 ];
 
 
@@ -48,11 +72,14 @@ const parcels: Parcel[] = [
 ];
 
 
-const statusVariantMap: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  'In-Progress': 'default',
-  'Pending': 'secondary',
-  'Done': 'outline',
+const statusConfig = {
+  'In-Progress': { icon: Loader, color: 'text-blue-500', label: 'In Progress' },
+  'Pending': { icon: Hourglass, color: 'text-gray-500', label: 'Pending' },
+  'Done': { icon: CheckCircle2, color: 'text-emerald-500', label: 'Done' },
+  'At-Risk': { icon: ShieldQuestion, color: 'text-amber-500', label: 'At Risk' },
+  'Blocked': { icon: AlertTriangle, color: 'text-destructive', label: 'Blocked' },
 };
+
 
 const LoadingOverlay = () => (
     <motion.div
@@ -62,8 +89,8 @@ const LoadingOverlay = () => (
         className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-lg"
     >
         <Wand2 className="h-12 w-12 text-primary animate-pulse mb-4" />
-        <h3 className="text-lg font-semibold">Copilot is splitting 4 tasks ↓ into 8 atomic subtasks…</h3>
-        <p className="text-muted-foreground animate-pulse">Analyzing dependencies...</p>
+        <h3 className="text-lg font-semibold">Contacting Agentic AI...</h3>
+        <p className="text-muted-foreground animate-pulse">Analyzing dependencies... Generating optimized workstreams...</p>
     </motion.div>
 );
 
@@ -79,7 +106,9 @@ export default function ExecutionPage() {
         setIsOptimizing(true);
         setTimeout(() => {
             setIsOptimized(true);
-            setTasks(optimizedSubtasks);
+            // In a real app, you'd get this from an API call
+            const relevantSubtasks = optimizedSubtasks.filter(st => initialTasks.some(it => it.id === st.parentId));
+            setTasks(relevantSubtasks);
             setIsOptimizing(false);
             toast({
                 title: 'Task graph re-optimized!',
@@ -108,7 +137,7 @@ export default function ExecutionPage() {
 
                 {/* Section 1 & 2 */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <Card className="relative">
+                    <Card className="relative flex flex-col">
                         {isOptimizing && <LoadingOverlay />}
                         <CardHeader>
                             <div className="flex justify-between items-center">
@@ -124,54 +153,62 @@ export default function ExecutionPage() {
                                 )}
                             </div>
                         </CardHeader>
-                        <CardContent>
-                            <AnimatePresence>
-                                <motion.div layout className="overflow-hidden">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Task Name</TableHead>
-                                                <TableHead className="w-[100px]">Duration</TableHead>
-                                                <TableHead className="w-[120px]">Owner</TableHead>
-                                                <TableHead className="w-[120px]">Status</TableHead>
-                                                <TableHead className="text-right w-[80px]">Help</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            <AnimatePresence>
-                                                {tasks.map((task, index) => (
-                                                    <motion.tr
-                                                        key={task.id}
-                                                        layoutId={task.id}
-                                                        initial={{ opacity: 0, y: -10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
-                                                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                                                        className="group"
-                                                    >
-                                                        <TableCell className={cn("font-medium", task.parentId && "pl-8")}>{task.name}</TableCell>
-                                                        <TableCell>{task.duration} d</TableCell>
-                                                        <TableCell>{task.owner}</TableCell>
-                                                        <TableCell>
-                                                            <Tooltip>
-                                                                <TooltipTrigger>
-                                                                    <Badge variant={statusVariantMap[task.status]}>{task.status}</Badge>
-                                                                </TooltipTrigger>
-                                                                <TooltipContent>{task.progress}% complete</TooltipContent>
-                                                            </Tooltip>
-                                                        </TableCell>
-                                                        <TableCell className="text-right">
-                                                            <Button variant="ghost" size="sm" onClick={() => openCopilotWithContext(isOptimized ? 'explain' : 'split', task)}>
-                                                                {isOptimized ? 'Explain' : 'Split'}
-                                                            </Button>
-                                                        </TableCell>
-                                                    </motion.tr>
-                                                ))}
-                                            </AnimatePresence>
-                                        </TableBody>
-                                    </Table>
-                                </motion.div>
-                            </AnimatePresence>
+                        <CardContent className="flex-grow overflow-hidden">
+                           <ScrollArea className="h-96 pr-4">
+                                <AnimatePresence>
+                                    <motion.div layout className="overflow-hidden">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Task Name</TableHead>
+                                                    <TableHead className="w-[100px]">Duration</TableHead>
+                                                    <TableHead className="w-[120px]">Owner</TableHead>
+                                                    <TableHead className="w-[120px]">Status</TableHead>
+                                                    <TableHead className="text-right w-[80px]">Help</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                <AnimatePresence>
+                                                    {tasks.map((task, index) => {
+                                                        const statusInfo = statusConfig[task.status as keyof typeof statusConfig] || statusConfig['Pending'];
+                                                        return (
+                                                        <motion.tr
+                                                            key={task.id}
+                                                            layoutId={task.id}
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+                                                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                                                            className="group"
+                                                        >
+                                                            <TableCell className={cn("font-medium", task.parentId && "pl-8")}>{task.name}</TableCell>
+                                                            <TableCell>{task.duration} d</TableCell>
+                                                            <TableCell>{task.owner}</TableCell>
+                                                            <TableCell>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger>
+                                                                        <Badge variant={task.status === 'Blocked' ? 'destructive' : 'outline'} className="flex items-center gap-2">
+                                                                            <statusInfo.icon className={cn("h-3 w-3", statusInfo.color)} />
+                                                                            <span>{statusInfo.label}</span>
+                                                                        </Badge>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>{task.progress}% complete</TooltipContent>
+                                                                </Tooltip>
+                                                            </TableCell>
+                                                            <TableCell className="text-right">
+                                                                <Button variant="ghost" size="sm" onClick={() => openCopilotWithContext(isOptimized ? 'explain' : 'split', task)}>
+                                                                    {isOptimized ? 'Explain' : 'Split'}
+                                                                </Button>
+                                                            </TableCell>
+                                                        </motion.tr>
+                                                    );
+                                                    })}
+                                                </AnimatePresence>
+                                            </TableBody>
+                                        </Table>
+                                    </motion.div>
+                                </AnimatePresence>
+                            </ScrollArea>
                         </CardContent>
                     </Card>
 
@@ -265,3 +302,4 @@ export default function ExecutionPage() {
         </TooltipProvider>
     );
 }
+
