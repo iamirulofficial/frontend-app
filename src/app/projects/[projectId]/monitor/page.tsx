@@ -75,9 +75,20 @@ const summaryKpis = [
 ];
 
 const parcels: Parcel[] = [
-    { type: 'Feature', properties: { progress: 0.94, id: 'P-1023' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
-    { type: 'Feature', properties: { progress: 0.52, id: 'P-1047', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.58,12.90], [77.59,12.90], [77.59,12.91], [77.58,12.91], [77.58,12.90]] ] } },
-    { type: 'Feature', properties: { progress: 0.35, id: 'P-1055' }, geometry: { type: 'Polygon', coordinates: [ [[77.62,12.91], [77.63,12.91], [77.63,12.92], [77.62,12.92], [77.62,12.91]] ] } },
+    // North
+    { type: 'Feature', properties: { progress: 0.84, id: 'P-JAM' }, geometry: { type: 'Polygon', coordinates: [ [[77.60, 34.15], [77.61, 34.15], [77.61, 34.16], [77.60, 34.16], [77.60, 34.15]] ] } },
+    { type: 'Feature', properties: { progress: 0.62, id: 'P-DEL' }, geometry: { type: 'Polygon', coordinates: [ [[77.23, 28.61], [77.24, 28.61], [77.24, 28.62], [77.23, 28.62], [77.23, 28.61]] ] } },
+    // West
+    { type: 'Feature', properties: { progress: 0.95, id: 'P-MUM' }, geometry: { type: 'Polygon', coordinates: [ [[72.87, 19.07], [72.88, 19.07], [72.88, 19.08], [72.87, 19.08], [72.87, 19.07]] ] } },
+    { type: 'Feature', properties: { progress: 0.45, id: 'P-AHD', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[72.57, 23.02], [72.58, 23.02], [72.58, 23.03], [72.57, 23.03], [72.57, 23.02]] ] } },
+    // South
+    { type: 'Feature', properties: { progress: 0.94, id: 'P-BNG' }, geometry: { type: 'Polygon', coordinates: [ [[77.60,12.92], [77.61,12.92], [77.61,12.93], [77.60,12.93], [77.60,12.92]] ] } },
+    { type: 'Feature', properties: { progress: 0.52, id: 'P-HYD', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[78.48,17.38], [78.49,17.38], [78.49,17.39], [78.48,17.39], [78.48,17.38]] ] } },
+    // East
+    { type: 'Feature', properties: { progress: 0.35, id: 'P-KOL' }, geometry: { type: 'Polygon', coordinates: [ [[88.36, 22.57], [88.37, 22.57], [88.37, 22.58], [88.36, 22.58], [88.36, 22.57]] ] } },
+    { type: 'Feature', properties: { progress: 0.78, id: 'P-BHU' }, geometry: { type: 'Polygon', coordinates: [ [[85.31, 25.61], [85.32, 25.61], [85.32, 25.62], [85.31, 25.62], [85.31, 25.61]] ] } },
+     // Central
+    { type: 'Feature', properties: { progress: 0.68, id: 'P-BHO', isBPL: true }, geometry: { type: 'Polygon', coordinates: [ [[77.41, 23.25], [77.42, 23.25], [77.42, 23.26], [77.41, 23.26], [77.41, 23.25]] ] } },
 ];
 
 
@@ -389,7 +400,5 @@ export default function MonitorPage() {
     </div>
   );
 }
-
-
 
     
