@@ -19,7 +19,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { failureDrivers } from '@/data/planning';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
 import { cn } from '@/lib/utils';
@@ -188,6 +188,7 @@ export default function SandboxPage() {
     }
 
   return (
+    <TooltipProvider>
     <div className="p-4 sm:p-6 lg:p-8">
         <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -397,7 +398,6 @@ export default function SandboxPage() {
             )}
         </AnimatePresence>
     </div>
+    </TooltipProvider>
   );
 }
-
-    
