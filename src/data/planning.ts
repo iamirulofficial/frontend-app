@@ -85,26 +85,26 @@ export const insights: Record<string, { success: {id: string, title: string, det
 
 const radarDataRaw = [
   { id: 'aadhaar', name: 'Aadhaar', data: [
-    { axis: 'Cost', value: 0.4 }, { axis: 'Delay', value: 0.7 }, { axis: 'Quality', value: 0.9 }, { axis: 'Scale', value: 1.0 }, { axis: 'Inclusivity', value: 0.85 }
+    { axis: 'Cost', value: 0.4 }, { axis: 'Delay', value: 0.7 }, { axis: 'Quality', value: 0.9 }, { axis: 'Scale', value: 1.0 }, { axis: 'Inclusivity', value: 0.85 }, { axis: 'User Adoption', value: 1.0 }, { axis: 'Security', value: 0.9 }
   ]},
   { id: 'upi', name: 'UPI', data: [
-    { axis: 'Cost', value: 0.6 }, { axis: 'Delay', value: 0.9 }, { axis: 'Quality', value: 0.9 }, { axis: 'Scale', value: 0.95 }, { axis: 'Inclusivity', value: 0.9  }
+    { axis: 'Cost', value: 0.6 }, { axis: 'Delay', value: 0.9 }, { axis: 'Quality', value: 0.9 }, { axis: 'Scale', value: 0.95 }, { axis: 'Inclusivity', value: 0.9  }, { axis: 'User Adoption', value: 1.0 }, { axis: 'Security', value: 0.95 }
   ]},
   { id: 'digilocker', name: 'DigiLocker', data: [
-    { axis: 'Cost', value: 0.3 }, { axis: 'Delay', value: 0.6 }, { axis: 'Quality', value: 0.8 }, { axis: 'Scale', value: 0.7 }, { axis: 'Inclusivity', value: 0.75 }
+    { axis: 'Cost', value: 0.3 }, { axis: 'Delay', value: 0.6 }, { axis: 'Quality', value: 0.8 }, { axis: 'Scale', value: 0.7 }, { axis: 'Inclusivity', value: 0.75 }, { axis: 'User Adoption', value: 0.8 }, { axis: 'Security', value: 0.9 }
   ]},
   { id: 'ndhm', name: 'NDHM', data: [
-    { axis: 'Cost', value: 0.5 }, { axis: 'Delay', value: 0.5 }, { axis: 'Quality', value: 0.7 }, { axis: 'Scale', value: 0.6 }, { axis: 'Inclusivity', value: 0.8 }
+    { axis: 'Cost', value: 0.5 }, { axis: 'Delay', value: 0.5 }, { axis: 'Quality', value: 0.7 }, { axis: 'Scale', value: 0.6 }, { axis: 'Inclusivity', value: 0.8 }, { axis: 'User Adoption', value: 0.6 }, { axis: 'Security', value: 0.8 }
   ]},
   { id: 'gstn', name: 'GSTN', data: [
-    { axis: 'Cost', value: 0.8 }, { axis: 'Delay', value: 0.4 }, { axis: 'Quality', value: 0.5 }, { axis: 'Scale', value: 0.85 }, { axis: 'Inclusivity', value: 0.6 }
+    { axis: 'Cost', value: 0.8 }, { axis: 'Delay', value: 0.4 }, { axis: 'Quality', value: 0.5 }, { axis: 'Scale', value: 0.85 }, { axis: 'Inclusivity', value: 0.6 }, { axis: 'User Adoption', value: 0.9 }, { axis: 'Security', value: 0.85 }
   ]},
   { id: 'pmgsy', name: 'PMGSY', data: [
-    { axis: 'Cost', value: 0.7 }, { axis: 'Delay', value: 0.6 }, { axis: 'Quality', value: 0.7 }, { axis: 'Scale', value: 0.8 }, { axis: 'Inclusivity', value: 1.0 }
+    { axis: 'Cost', value: 0.7 }, { axis: 'Delay', value: 0.6 }, { axis: 'Quality', value: 0.7 }, { axis: 'Scale', value: 0.8 }, { axis: 'Inclusivity', value: 1.0 }, { axis: 'User Adoption', value: 0.7 }, { axis: 'Security', value: 0.7 }
   ]}
 ];
 
-export const radarAxes = ['Cost', 'Delay', 'Quality', 'Scale', 'Inclusivity'];
+export const radarAxes = ['Cost', 'Delay', 'Quality', 'Scale', 'Inclusivity', 'User Adoption', 'Security'];
 
 export const radarPolygons = radarDataRaw.map(d => ({
     id: d.id,
