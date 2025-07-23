@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,12 +10,13 @@ import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/comp
 import { toast } from '@/hooks/use-toast';
 import { AiCopilot } from '@/components/ai-copilot';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
-import { Wand2, Layers, Bot, GitCommitHorizontal, Milestone, Play, Pause, ChevronRight, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader } from 'lucide-react';
+import { Wand2, Layers, Bot, GitCommitHorizontal, Milestone, Play, Pause, ChevronRight, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader, Users, Rocket, TestTube2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { Progress } from '@/components/ui/progress';
 
 const initialTasks = [
   { id: 'T1', name: 'Deploy IoT Beacons', duration: 12, owner: 'Ops Team', status: 'In-Progress', progress: 30 },
@@ -42,19 +43,18 @@ const initialTasks = [
 
 
 const optimizedSubtasks = [
-    { id: 'S1-1', parentId: 'T1', name: 'Procure sensors', duration: 6, owner: 'Ops Team', status: 'Done', progress: 100 },
-    { id: 'S1-2', parentId: 'T1', name: 'Install sensors', duration: 6, owner: 'Ops Team', status: 'In-Progress', progress: 50 },
-    { id: 'S2-1', parentId: 'T2', name: 'Frontend UI/UX', duration: 5, owner: 'Dev Squad', status: 'In-Progress', progress: 70 },
-    { id: 'S2-2', parentId: 'T2', name: 'Backend API', duration: 5, owner: 'Dev Squad', status: 'In-Progress', progress: 50 },
-    { id: 'S3-1', parentId: 'T3', name: 'Legal-Spec drafting', duration: 4, owner: 'Legal Ops', status: 'Blocked', progress: 20 },
-    { id: 'S3-2', parentId: 'T3', name: 'Smart-contract coding', duration: 4, owner: 'Dev Squad', status: 'Pending', progress: 0 },
-    { id: 'S4-1', parentId: 'T4', name: 'Export 32Cr pages', duration: 8, owner: 'Data Cell', status: 'At-Risk', progress: 40 },
-    { id: 'S4-2', parentId: 'T4', name: 'Run OCR & cleaning', duration: 7, owner: 'Data Cell', status: 'Pending', progress: 0 },
-    // Add more optimized tasks to simulate a full breakdown
-    { id: 'S7-1', parentId: 'T7', name: 'Data model design', duration: 4, owner: 'Dev Squad', status: 'Done', progress: 100 },
-    { id: 'S7-2', parentId: 'T7', name: 'Chart component dev', duration: 7, owner: 'Dev Squad', status: 'In-Progress', progress: 20 },
-    { id: 'S10-1', parentId: 'T10', name: 'Resolve API spec conflict', duration: 7, owner: 'Dev Squad', status: 'Blocked', progress: 0 },
-    { id: 'S10-2', parentId: 'T10', name: 'Implement payment gateway', duration: 7, owner: 'Dev Squad', status: 'Pending', progress: 0 },
+    { id: 'S1-1', parentId: 'T1', name: 'Procure sensors', duration: 6, owner: 'Ops Team', status: 'Done', progress: 100, critical: false, parcelId: 'P-1023' },
+    { id: 'S1-2', parentId: 'T1', name: 'Install sensors', duration: 6, owner: 'Ops Team', status: 'In-Progress', progress: 50, critical: true, parcelId: 'P-1023' },
+    { id: 'S2-1', parentId: 'T2', name: 'Frontend UI/UX', duration: 5, owner: 'Dev Squad', status: 'In-Progress', progress: 70, critical: false, parcelId: 'P-1047' },
+    { id: 'S2-2', parentId: 'T2', name: 'Backend API', duration: 5, owner: 'Dev Squad', status: 'In-Progress', progress: 50, critical: false, parcelId: 'P-1047' },
+    { id: 'S3-1', parentId: 'T3', name: 'Legal-Spec drafting', duration: 4, owner: 'Legal Ops', status: 'Blocked', progress: 20, critical: true, parcelId: 'P-1055' },
+    { id: 'S3-2', parentId: 'T3', name: 'Smart-contract coding', duration: 4, owner: 'Dev Squad', status: 'Pending', progress: 0, critical: true, parcelId: 'P-1055' },
+    { id: 'S4-1', parentId: 'T4', name: 'Export 32Cr pages', duration: 8, owner: 'Data Cell', status: 'At-Risk', progress: 40, critical: false },
+    { id: 'S4-2', parentId: 'T4', name: 'Run OCR & cleaning', duration: 7, owner: 'Data Cell', status: 'Pending', progress: 0, critical: false },
+    { id: 'S7-1', parentId: 'T7', name: 'Data model design', duration: 4, owner: 'Dev Squad', status: 'Done', progress: 100, critical: false },
+    { id: 'S7-2', parentId: 'T7', name: 'Chart component dev', duration: 7, owner: 'Dev Squad', status: 'In-Progress', progress: 20, critical: true },
+    { id: 'S10-1', parentId: 'T10', name: 'Resolve API spec conflict', duration: 7, owner: 'Dev Squad', status: 'Blocked', progress: 0, critical: true },
+    { id: 'S10-2', parentId: 'T10', name: 'Implement payment gateway', duration: 7, owner: 'Dev Squad', status: 'Pending', progress: 0, critical: true },
 ];
 
 
@@ -80,6 +80,19 @@ const statusConfig = {
   'Blocked': { icon: AlertTriangle, color: 'text-destructive', label: 'Blocked' },
 };
 
+const teamConfig: { [key: string]: { icon: React.ElementType, color: string } } = {
+  'Ops Team': { icon: Rocket, color: 'bg-sky-500' },
+  'Dev Squad': { icon: Bot, color: 'bg-blue-500' },
+  'Legal Ops': { icon: Shield, color: 'bg-rose-500' },
+  'Data Cell': { icon: Layers, color: 'bg-amber-500' },
+  'QA Team': { icon: TestTube2, color: 'bg-fuchsia-500' },
+  'HR Team': { icon: Users, color: 'bg-indigo-500' },
+  'InfoSec': { icon: Shield, color: 'bg-red-700' },
+  'Comm Team': { icon: Users, color: 'bg-cyan-500' },
+  'Support': { icon: Users, color: 'bg-lime-500' },
+  'Outreach': { icon: Users, color: 'bg-teal-500' },
+  'Default': { icon: Users, color: 'bg-slate-500' },
+};
 
 const LoadingOverlay = () => (
     <motion.div
@@ -101,12 +114,24 @@ export default function ExecutionPage() {
     const [isOptimizing, setIsOptimizing] = useState(false);
     const [isCopilotOpen, setIsCopilotOpen] = useState(false);
     const [copilotContext, setCopilotContext] = useState<any>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [day, setDay] = useState(12);
+    const [hoveredTask, setHoveredTask] = useState<string | null>(null);
+
+    const timelineDuration = 90;
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isPlaying && day < timelineDuration) {
+            timer = setTimeout(() => setDay(day + 1), 200);
+        }
+        return () => clearTimeout(timer);
+    }, [isPlaying, day]);
 
     const handleOptimize = () => {
         setIsOptimizing(true);
         setTimeout(() => {
             setIsOptimized(true);
-            // In a real app, you'd get this from an API call
             const relevantSubtasks = optimizedSubtasks.filter(st => initialTasks.some(it => it.id === st.parentId));
             setTasks(relevantSubtasks);
             setIsOptimizing(false);
@@ -179,7 +204,7 @@ export default function ExecutionPage() {
                                                             animate={{ opacity: 1, y: 0 }}
                                                             exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
                                                             transition={{ duration: 0.3, delay: index * 0.05 }}
-                                                            className="group"
+                                                            className={cn("group", task.critical && isOptimized ? 'bg-amber-50/50' : '')}
                                                         >
                                                             <TableCell className={cn("font-medium", task.parentId && "pl-8")}>{task.name}</TableCell>
                                                             <TableCell>{task.duration} d</TableCell>
@@ -215,19 +240,52 @@ export default function ExecutionPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>2. PPP Delivery-Twin Map & Timeline</CardTitle>
-                             <CardDescription>Live spatial simulation combined with Gantt timeline.</CardDescription>
+                            <CardDescription>Live spatial simulation combined with Gantt timeline.</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                             <div className="w-full h-[300px] rounded-lg shadow-inner bg-slate-100 overflow-hidden border mb-4">
-                                <TwinPreviewMap parcels={parcels} />
+                                <TwinPreviewMap parcels={parcels} highlightedParcel={hoveredTask} />
                             </div>
-                            <div className="flex items-center justify-between p-2 bg-muted rounded-md">
-                                <div className="flex items-center gap-2">
-                                     <Button variant="outline" size="icon"><Play className="h-4 w-4"/></Button>
-                                     <span className="text-sm font-mono">Day 12 / 90</span>
+                            {isOptimized && (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                                        <div className="flex items-center gap-2">
+                                            <Button variant="outline" size="icon" onClick={() => setIsPlaying(!isPlaying)}>
+                                                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                            </Button>
+                                            <span className="text-sm font-mono">Day {day} / {timelineDuration}</span>
+                                        </div>
+                                    </div>
+                                    <ScrollArea className="h-28">
+                                        <div className="space-y-2 pr-4">
+                                            {tasks.filter(t => t.parcelId).map(task => {
+                                                const team = teamConfig[task.owner as keyof typeof teamConfig] || teamConfig.Default;
+                                                return (
+                                                    <Tooltip key={task.id}>
+                                                        <TooltipTrigger asChild>
+                                                            <div
+                                                                className="flex items-center gap-2 cursor-pointer"
+                                                                onMouseEnter={() => setHoveredTask(task.parcelId)}
+                                                                onMouseLeave={() => setHoveredTask(null)}
+                                                            >
+                                                                <team.icon className={cn("h-5 w-5 rounded-full p-0.5 text-white", team.color)} />
+                                                                <div className="flex-grow space-y-1">
+                                                                    <p className="text-xs font-medium leading-none">{task.name}</p>
+                                                                    <Progress value={task.progress} className={cn("h-1", task.critical ? 'bg-amber-200 [&>div]:bg-amber-500' : '')} />
+                                                                </div>
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>{task.owner}</p>
+                                                            {task.critical && <p className="text-amber-600 font-bold">Critical Path</p>}
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                )
+                                            })}
+                                        </div>
+                                    </ScrollArea>
                                 </div>
-                                <div className="text-xs text-muted-foreground">Gantt Chart Coming Soon</div>
-                            </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>

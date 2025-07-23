@@ -28,10 +28,11 @@ type HoverInfo = {
 
 interface TwinPreviewMapProps {
     parcels: Parcel[];
+    highlightedParcel?: string | null;
 }
 
 
-export const TwinPreviewMap = ({ parcels }: TwinPreviewMapProps) => {
+export const TwinPreviewMap = ({ parcels, highlightedParcel }: TwinPreviewMapProps) => {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
 
   const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
@@ -40,6 +41,16 @@ export const TwinPreviewMap = ({ parcels }: TwinPreviewMapProps) => {
       type: 'FeatureCollection',
       features: parcels
   }), [parcels]);
+
+  const highlightedGeoJson = useMemo(() => {
+    if (!highlightedParcel) return null;
+    const feature = parcels.find(p => p.properties.id === highlightedParcel);
+    if (!feature) return null;
+    return {
+      type: 'FeatureCollection',
+      features: [feature]
+    };
+  }, [parcels, highlightedParcel]);
 
 
   if (!mapTilerKey) {
@@ -109,6 +120,22 @@ export const TwinPreviewMap = ({ parcels }: TwinPreviewMapProps) => {
           }}
         />
       </Source>
+      
+      {/* Highlight layer */}
+      {highlightedGeoJson && (
+        <Source id="highlight" type="geojson" data={highlightedGeoJson as any}>
+          <Layer
+            id="highlight-line"
+            type="line"
+            paint={{
+              'line-color': '#0ea5e9', // a bright blue
+              'line-width': 4,
+              'line-dasharray': [2, 1]
+            }}
+          />
+        </Source>
+      )}
+
 
       {/* Hover tooltip */}
       {hoverInfo && (
