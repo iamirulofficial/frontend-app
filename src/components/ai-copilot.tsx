@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { getProjectCopilotSummary, type ProjectCopilotSummaryOutput } from '@/ai/flows/project-copilot-summary';
 import { getTaskExplanation, type TaskExplanationOutput } from '@/ai/flows/explain-task';
 import { projects, bhuSetuData } from '@/data';
@@ -256,6 +257,17 @@ export function AiCopilot({ open, onOpenChange, context = { type: 'default', det
         <div className="p-6 flex-grow overflow-y-auto">
           {renderContent()}
         </div>
+        {context.type === 'explain' && (
+            <>
+                <Separator />
+                <SheetFooter className="p-4 bg-background border-t">
+                    <div className="flex items-center w-full gap-2">
+                        <Input placeholder="Ask a follow-up question..." disabled />
+                        <Button disabled>Send</Button>
+                    </div>
+                </SheetFooter>
+            </>
+        )}
       </SheetContent>
     </Sheet>
   );
