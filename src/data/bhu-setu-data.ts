@@ -43,12 +43,12 @@ export const bhuSetuData: BhuSetuData = {
       { id: '#CAR-019', description: 'Pending approval for boundary change based on drone resurvey.', status: 'open' },
     ],
     citizenWall: [
-        { id: '1', imageUrl: 'https://images.unsplash.com/photo-1588803103458-46c4d5ba1378?q=80&w=600', location: 'Bhagalpur', isMismatch: false },
-        { id: '2', imageUrl: 'https://images.unsplash.com/photo-1544383826-348a4b6df342?q=80&w=600', location: 'Dindori', isMismatch: true },
-        { id: '3', imageUrl: 'https://images.unsplash.com/photo-1621929744747-83a37b7e8c3c?q=80&w=600', location: 'Jaipur', isMismatch: false },
-        { id: '4', imageUrl: 'https://images.unsplash.com/photo-1599921404175-195c64506f20?q=80&w=600', location: 'Pune', isMismatch: false },
-        { id: '5', imageUrl: 'https://images.unsplash.com/photo-1526640523293-c9d343a3d24c?q=80&w=600', location: 'Bhagalpur', isMismatch: false },
-        { id: '6', imageUrl: 'https://images.unsplash.com/photo-1617244389146-248c89451a24?q=80&w=600', location: 'Dindori', isMismatch: false },
+      { id: '1', imageUrl: 'https://images.unsplash.com/photo-1519817914152-22d21a281883?q=80&w=600&auto=format&fit=crop', location: 'Bhagalpur', isMismatch: false },
+      { id: '2', imageUrl: 'https://images.unsplash.com/photo-1599818496414-fe76a8b27638?q=80&w=600&auto=format&fit=crop', location: 'Dindori', isMismatch: true },
+      { id: '3', imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600&auto=format&fit=crop', location: 'Jaipur', isMismatch: false },
+      { id: '4', imageUrl: 'https://images.unsplash.com/photo-1620371350502-999e9a7d80a4?q=80&w=600&auto=format&fit=crop', location: 'Pune', isMismatch: false },
+      { id: '5', imageUrl: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=600&auto=format&fit=crop', location: 'Bhagalpur', isMismatch: false },
+      { id: '6', imageUrl: 'https://images.unsplash.com/photo-1586776903434-27d4245237a6?q=80&w=600&auto=format&fit=crop', location: 'Dindori', isMismatch: false },
     ],
     qualityScorecard: {
       averageScore: 92,
@@ -65,10 +65,17 @@ export const bhuSetuData: BhuSetuData = {
       { id: 'A-28', description: 'Unexpected API usage spike from Zone 3', severity: 'low' },
     ],
     pppOversight: [
-      { metric: 'CAPEX Spend', target: '≤ ₹500 Cr', actual: '₹480 Cr', status: 'on-track' },
-      { metric: 'Service Uptime', target: '≥ 99.9%', actual: '99.8%', status: 'at-risk' },
-      { metric: 'API Revenue', target: '≥ ₹20 L/day', actual: '₹23 L/day', status: 'on-track' },
-      { metric: 'Mutation SLA', target: '< 5 days', actual: '5.8 days', status: 'breached' },
-    ]
+      { metric: 'SPV Alpha', target: '99.95%', actual: '99.98%', status: 'on-track' },
+      { metric: 'SPV Beta', target: '99.95%', actual: '99.81%', status: 'at-risk' },
+      { metric: 'SPV Gamma', target: '99.95%', actual: '98.20%', status: 'breached' },
+    ],
+    citizenSatisfaction: {
+      nps: 72,
+      avgResolutionTimeDays: 2.3
+    },
+    govtMetrics: {
+      approvalTurnaroundDays: 4,
+      budgetUtilization: 64,
+    }
   }
 };

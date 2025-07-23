@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 interface ProjectSidebarProps {
   project: Project;
@@ -32,7 +33,7 @@ const navItems = [
   { href: '/planning', icon: ClipboardList, label: 'Planning' },
   { href: '/execution', icon: Construction, label: 'Execution' },
   { href: '/verification', icon: FileCheck2, label: 'Verification' },
-  { href: '/monitor', icon: BarChart2, label: 'Monitor' },
+  { href: '/monitor', icon: BarChart2, label: 'Monitor', disabled: true },
 ];
 
 export function ProjectSidebar({ project, onAiCopilotClick }: ProjectSidebarProps) {
@@ -47,17 +48,19 @@ export function ProjectSidebar({ project, onAiCopilotClick }: ProjectSidebarProp
         <nav className="flex flex-col items-center space-y-2 flex-grow">
           {navItems.map((item) => {
             const fullPath = `/projects/${project.id}${item.href}`;
-            const isActive = pathname === fullPath;
+            const isActive = pathname.startsWith(fullPath);
             return (
               <Tooltip key={item.href}>
                 <TooltipTrigger asChild>
                   <Link
-                    href={fullPath}
-                    className={`p-3 rounded-lg transition-colors ${
+                    href={!item.disabled ? fullPath : '#'}
+                    className={cn(
+                      'p-3 rounded-lg transition-colors',
                       isActive
                         ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent/10 hover:text-primary'
-                    }`}
+                        : 'text-muted-foreground hover:bg-accent/10 hover:text-primary',
+                       item.disabled ? 'pointer-events-none opacity-50' : ''
+                    )}
                   >
                     <item.icon className="h-6 w-6" />
                   </Link>

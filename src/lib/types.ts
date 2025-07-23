@@ -111,6 +111,14 @@ export interface MonitorData {
     actual: string;
     status: 'on-track' | 'at-risk' | 'breached';
   }[];
+  citizenSatisfaction: {
+    nps: number;
+    avgResolutionTimeDays: number;
+  };
+  govtMetrics: {
+    approvalTurnaroundDays: number;
+    budgetUtilization: number;
+  };
 }
 
 export interface BhuSetuData {
