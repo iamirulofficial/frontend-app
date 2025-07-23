@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { HelpCircle, Wand2, ArrowRight, Users, Shield, Code, Drone } from 'lucide-react';
+import { HelpCircle, Wand2, ArrowRight, Users, Shield, Code, Rocket } from 'lucide-react';
 import { planningData } from '@/data/planning';
 import { useToast } from '@/hooks/use-toast';
 import { AiCopilot } from '@/components/ai-copilot';
@@ -33,7 +33,7 @@ const optimizedSubtasks: Record<number, { id: string; task: string; team: 'Drone
 };
 
 const teamIcons: Record<string, React.ReactNode> = {
-    'Drone Ops': <Drone className="h-5 w-5 text-sky-500" />,
+    'Drone Ops': <Rocket className="h-5 w-5 text-sky-500" />,
     'Data Sci': <Shield className="h-5 w-5 text-amber-500" />,
     'DevOps': <Code className="h-5 w-5 text-emerald-500" />,
     'Legal': <Users className="h-5 w-5 text-rose-500" />,
