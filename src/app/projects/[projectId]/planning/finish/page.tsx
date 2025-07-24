@@ -5,25 +5,27 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 export default function FinishPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const params = useParams();
+    const projectId = params.projectId;
 
     const handleLockPlan = () => {
         toast({
             title: "Plan Locked & Execution Started",
-            description: "Your project baseline is locked. The Execution Twin is now ready.",
+            description: "Your project baseline is locked. Redirecting to Execution phase...",
             variant: "default"
         });
-        // In a real app, this would trigger a backend process.
-        // Here, we just navigate.
+
+        // Navigate to execution phase with planning parameter after a brief delay
         setTimeout(() => {
-            router.push('/projects/bhu-setu-2/dashboard');
-        }, 1500)
+            router.push(`/projects/${projectId}/execution?from=planning`);
+        }, 2000);
     };
-    
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="text-center mb-12">
@@ -34,7 +36,7 @@ export default function FinishPage() {
           Review your final plan configuration before launching the project.
         </p>
       </div>
-      
+
       <Card className="shadow-xl border-2 border-primary/20">
         <CardHeader>
             <CardTitle>Planning Summary</CardTitle>
@@ -51,9 +53,9 @@ export default function FinishPage() {
                     <p className="text-muted-foreground">15 yrs ∙ VGF 20% ∙ RevShare 15%</p>
                 </div>
             </div>
-            
+
             <Separator />
-            
+
             <div>
                  <h3 className="font-semibold text-lg mb-3">Inclusive-Biz Canvas</h3>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
@@ -73,10 +75,10 @@ export default function FinishPage() {
             </div>
         </CardContent>
       </Card>
-      
+
        <div className="flex justify-between items-center mt-12">
         <Button variant="outline" asChild>
-          <Link href="/projects/bhu-setu-2/planning/sandbox">
+          <Link href={`/projects/${projectId}/planning/sandbox`}>
             Back: Sandbox
           </Link>
         </Button>
@@ -89,4 +91,3 @@ export default function FinishPage() {
   );
 }
 
-    

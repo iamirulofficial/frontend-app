@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -10,7 +11,7 @@ import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/comp
 import { toast } from '@/hooks/use-toast';
 import { AiCopilot } from '@/components/ai-copilot';
 import { TwinPreviewMap, type Parcel } from '@/components/twin-preview-map';
-import { Wand2, Layers, Bot, Play, Pause, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader, Users, Rocket, TestTube2, Shield } from 'lucide-react';
+import { Wand2, Layers, Bot, Play, Pause, AlertTriangle, ShieldQuestion, Hourglass, CheckCircle2, Loader, Users, Rocket, TestTube2, Shield, PartyPopper, Calendar, Target } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -270,13 +271,16 @@ const LoadingOverlay = () => (
         className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-lg"
     >
         <Wand2 className="h-12 w-12 text-primary animate-pulse mb-4" />
-        <h3 className="text-lg font-semibold">Contacting Agentic AI...</h3>
+        <h3 className="text-lg font-semibold">AI Analysis in Progress...</h3>
         <p className="text-muted-foreground animate-pulse">Analyzing dependencies... Generating optimized workstreams...</p>
     </motion.div>
 );
 
 
 export default function ExecutionPage() {
+    const searchParams = useSearchParams();
+    const fromPlanning = searchParams.get('from') === 'planning';
+
     const [tasks, setTasks] = useState<any[]>(initialTasks);
     const [isOptimized, setIsOptimized] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
@@ -285,8 +289,7 @@ export default function ExecutionPage() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [day, setDay] = useState(12);
     const [hoveredTask, setHoveredTask] = useState<string | null>(null);
-    const [notifications, setNotifications] = useState<any[]>([]);
-    const [lastNotificationId, setLastNotificationId] = useState(0);
+    const [showWelcomeBanner, setShowWelcomeBanner] = useState(fromPlanning);
 
     const timelineDuration = 90;
 
@@ -298,58 +301,15 @@ export default function ExecutionPage() {
         return () => clearTimeout(timer);
     }, [isPlaying, day]);
 
-    // Live notification system for critical issues
+    // Auto-hide welcome banner after 8 seconds
     useEffect(() => {
-        const criticalTasks = tasks.filter(task => task.status === 'Blocked' || task.status === 'At-Risk' || (task.critical && isOptimized));
-        
-        const notificationTypes = [
-            '🚨 New blocker detected',
-            '⚠️ Task moved to at-risk',
-            '🔧 Dependency issue found',
-            '📊 Progress stalled',
-            '⏰ Deadline approaching'
-        ];
-
-        const generateNotification = () => {
-            if (criticalTasks.length > 0) {
-                const randomTask = criticalTasks[Math.floor(Math.random() * criticalTasks.length)];
-                const randomType = notificationTypes[Math.floor(Math.random() * notificationTypes.length)];
-                
-                const notification = {
-                    id: lastNotificationId + 1,
-                    type: randomType,
-                    task: randomTask.name,
-                    owner: randomTask.owner,
-                    timestamp: new Date().toLocaleTimeString(),
-                    severity: randomTask.status === 'Blocked' ? 'high' : 'medium'
-                };
-
-                // Show toast notification first
-                toast({
-                    title: notification.type,
-                    description: `${notification.task} • ${notification.owner}`,
-                    variant: notification.severity === 'high' ? 'destructive' : 'default',
-                });
-
-                // Then add to the persistent notifications list
-                setNotifications(prev => [notification, ...prev.slice(0, 4)]); // Keep only 5 notifications
-                setLastNotificationId(prev => prev + 1);
-            }
-        };
-
-        // Generate notifications every 3-5 seconds when there are critical tasks
-        const interval = setInterval(generateNotification, Math.random() * 2000 + 3000);
-
-        return () => clearInterval(interval);
-    }, [tasks, isOptimized, lastNotificationId]);
-
-    // Auto-remove old notifications
-    useEffect(() => {
-        const cleanup = setTimeout(() => {
-            setNotifications(prev => prev.slice(0, 3));
-        }, 10000);
-        return () => clearTimeout(cleanup);
-    }, [notifications]);
+        if (showWelcomeBanner) {
+            const timer = setTimeout(() => {
+                setShowWelcomeBanner(false);
+            }, 8000);
+            return () => clearTimeout(timer);
+        }
+    }, [showWelcomeBanner]);
 
     const handleOptimize = () => {
         setIsOptimizing(true);
@@ -373,6 +333,61 @@ export default function ExecutionPage() {
     return (
         <TooltipProvider>
             <div className="space-y-8 relative">
+                {/* Welcome Banner from Planning */}
+                <AnimatePresence>
+                    {showWelcomeBanner && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -50, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -50, scale: 0.95 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <Card className="border-2 border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 shadow-xl">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <PartyPopper className="h-8 w-8 text-emerald-600" />
+                                                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-emerald-800 mb-1">
+                                                    🎉 Planning Phase Complete!
+                                                </h2>
+                                                <p className="text-emerald-700 text-lg">
+                                                    Your project baseline is now locked. Welcome to the <strong>Execution Phase</strong>!
+                                                </p>
+                                                <div className="flex items-center gap-6 mt-3 text-sm text-emerald-600">
+                                                    <div className="flex items-center gap-1">
+                                                        <Target className="h-4 w-4" />
+                                                        <span>Scenario B Locked (IRR 14%)</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="h-4 w-4" />
+                                                        <span>Timeline: -12 days optimized</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <Rocket className="h-4 w-4" />
+                                                        <span>Ready for AI Task Optimization</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setShowWelcomeBanner(false)}
+                                            className="text-emerald-600 hover:text-emerald-700"
+                                        >
+                                            ✕
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-4xl font-bold font-headline tracking-tight">🚀 Execution: Task Management & Progress Tracking</h1>
@@ -689,45 +704,6 @@ export default function ExecutionPage() {
                                         <span className="text-xs text-muted-foreground">Live feed</span>
                                     </div>
                                 </div>
-
-                                {/* Recent Notifications Feed */}
-                                {notifications.length > 0 && (
-                                    <div className="space-y-2">
-                                        <h5 className="text-xs font-medium text-muted-foreground">Recent Alerts</h5>
-                                        <div className="space-y-1">
-                                            <AnimatePresence mode="popLayout">
-                                                {notifications.slice(0, 3).map((notification) => (
-                                                    <motion.div
-                                                        key={notification.id}
-                                                        initial={{ opacity: 0, x: -20, scale: 0.95 }}
-                                                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                                                        exit={{ opacity: 0, x: 20, scale: 0.95 }}
-                                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                                        className={cn(
-                                                            "p-2 rounded-lg border-l-2 text-xs",
-                                                            notification.severity === 'high' 
-                                                                ? "border-red-500 bg-red-50/50" 
-                                                                : "border-amber-500 bg-amber-50/50"
-                                                        )}
-                                                    >
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="font-medium text-slate-800">
-                                                                {notification.type}
-                                                            </span>
-                                                            <span className="text-slate-500">
-                                                                {notification.timestamp}
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-slate-600 mt-0.5">
-                                                            {notification.task} • {notification.owner}
-                                                        </p>
-                                                    </motion.div>
-                                                ))}
-                                            </AnimatePresence>
-                                        </div>
-                                        <Separator className="my-3" />
-                                    </div>
-                                )}
 
                                 <div className="space-y-2">
                                     <h5 className="text-xs font-medium text-muted-foreground">Active Issues</h5>

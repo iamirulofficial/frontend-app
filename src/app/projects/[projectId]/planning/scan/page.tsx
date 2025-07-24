@@ -97,7 +97,7 @@ export default function SparkScan() {
       {/* HEADER */}
       <h1 className="text-3xl font-bold flex items-center">
         <Sparkles className="text-primary mr-2" />
-        SPARK Scan • Agentic AI
+        SPARK Scan • Data Driven AI Research Agent
       </h1>
       <p className="text-muted-foreground">
         Let the Copilot mine landmark e-governance projects, cluster bright-spots,

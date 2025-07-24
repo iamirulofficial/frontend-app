@@ -10,7 +10,8 @@ import {
   BarChart2,
   Archive,
   Bot,
-  LogOut
+  LogOut,
+  Users
 } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import { GovernaiLogo } from './icons';
@@ -34,6 +35,7 @@ const navItems = [
   { href: '/execution', icon: Construction, label: 'Execution' },
   { href: '/verification', icon: FileCheck2, label: 'Verification' },
   { href: '/monitor', icon: BarChart2, label: 'Monitor' },
+  { href: '/citizen', icon: Users, label: 'Citizen Portal' },
 ];
 
 export function ProjectSidebar({ project, onAiCopilotClick }: ProjectSidebarProps) {
@@ -53,13 +55,12 @@ export function ProjectSidebar({ project, onAiCopilotClick }: ProjectSidebarProp
               <Tooltip key={item.href}>
                 <TooltipTrigger asChild>
                   <Link
-                    href={!item.disabled ? fullPath : '#'}
+                    href={fullPath}
                     className={cn(
                       'p-3 rounded-lg transition-colors',
                       isActive
                         ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent/10 hover:text-primary',
-                       item.disabled ? 'pointer-events-none opacity-50' : ''
+                        : 'text-muted-foreground hover:bg-accent/10 hover:text-primary'
                     )}
                   >
                     <item.icon className="h-6 w-6" />

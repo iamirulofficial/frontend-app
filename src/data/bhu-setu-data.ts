@@ -43,12 +43,12 @@ export const bhuSetuData: BhuSetuData = {
       { id: '#CAR-019', description: 'Pending approval for boundary change based on drone resurvey.', status: 'open' },
     ],
     citizenWall: [
-      { id: '1', imageUrl: 'https://images.unsplash.com/photo-1519817914152-22d21a281883?q=80&w=600&auto=format&fit=crop', location: 'Bhagalpur', isMismatch: false },
-      { id: '2', imageUrl: 'https://images.unsplash.com/photo-1599818496414-fe76a8b27638?q=80&w=600&auto=format&fit=crop', location: 'Dindori', isMismatch: true },
-      { id: '3', imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600&auto=format&fit=crop', location: 'Jaipur', isMismatch: false },
-      { id: '4', imageUrl: 'https://images.unsplash.com/photo-1620371350502-999e9a7d80a4?q=80&w=600&auto=format&fit=crop', location: 'Pune', isMismatch: false },
-      { id: '5', imageUrl: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=600&auto=format&fit=crop', location: 'Bhagalpur', isMismatch: false },
-      { id: '6', imageUrl: 'https://images.unsplash.com/photo-1586776903434-27d4245237a6?q=80&w=600&auto=format&fit=crop', location: 'Dindori', isMismatch: false },
+      { id: '1', imageUrl: 'https://picsum.photos/600/400?random=11', location: 'Bhagalpur', isMismatch: false },
+      { id: '2', imageUrl: 'https://picsum.photos/600/400?random=12', location: 'Dindori', isMismatch: true },
+      { id: '3', imageUrl: 'https://picsum.photos/600/400?random=13', location: 'Jaipur', isMismatch: false },
+      { id: '4', imageUrl: 'https://picsum.photos/600/400?random=14', location: 'Pune', isMismatch: false },
+      { id: '5', imageUrl: 'https://picsum.photos/600/400?random=15', location: 'Bhagalpur', isMismatch: false },
+      { id: '6', imageUrl: 'https://picsum.photos/600/400?random=16', location: 'Dindori', isMismatch: false },
     ],
     qualityScorecard: {
       averageScore: 92,
